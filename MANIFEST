@@ -1,0 +1,27 @@
+Build.PL
+Changes
+lib/Catalyst/Plugin/Authentication/Store/DBIC.pm
+lib/Catalyst/Plugin/Authentication/Store/DBIC/Backend.pm
+lib/Catalyst/Plugin/Authentication/Store/DBIC/User.pm
+MANIFEST			This list of files
+META.yml
+README
+t/01use.t
+t/02pod.t
+t/03podcoverage.t
+t/04auth-clear.t
+t/05auth-crypted.t
+t/06auth-hashed.t
+t/07auth-sessions.t
+t/08authz-dbic.t
+t/09authz-cdbi.t
+t/lib/TestApp.pm
+t/lib/TestApp/Model/CDBI/CDBI.pm
+t/lib/TestApp/Model/CDBI/Role.pm
+t/lib/TestApp/Model/CDBI/User.pm
+t/lib/TestApp/Model/CDBI/UserRole.pm
+t/lib/TestApp/Model/DBIC.pm
+t/lib/TestApp/Model/Role.pm
+t/lib/TestApp/Model/User.pm
+t/lib/TestApp/Model/UserRole.pm
+Makefile.PL

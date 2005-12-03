@@ -1,0 +1,24 @@
+---
+name: Catalyst-Plugin-Authentication-Store-DBIC
+version: 0.01
+author:
+  - 'Andy Grundman, <andy@hybridized.org>'
+abstract: |-
+  Authentication and
+  authorization against a DBIx::Class or Class::DBI model.
+license: perl
+requires:
+  Catalyst: 5.49
+  Catalyst::Plugin::Authentication: 0.02
+recommends:
+  Catalyst::Plugin::Authorization::Roles: 0
+  Catalyst::Plugin::Session: 0.02
+provides:
+  Catalyst::Plugin::Authentication::Store::DBIC:
+    file: lib/Catalyst/Plugin/Authentication/Store/DBIC.pm
+    version: 0.01
+  Catalyst::Plugin::Authentication::Store::DBIC::Backend:
+    file: lib/Catalyst/Plugin/Authentication/Store/DBIC/Backend.pm
+  Catalyst::Plugin::Authentication::Store::DBIC::User:
+    file: lib/Catalyst/Plugin/Authentication/Store/DBIC/User.pm
+generated_by: Module::Build version 0.2611

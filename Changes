@@ -1,0 +1,4 @@
+Revision history for Perl extension Catalyst::Plugin::Authentication::Store::DBIC
+
+0.01
+        - initial release
