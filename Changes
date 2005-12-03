@@ -1,4 +1,7 @@
 Revision history for Perl extension Catalyst::Plugin::Authentication::Store::DBIC
 
-0.01
+0.02    2005-12-03 18:00:00
+        - Fixed Auth and Authz::Roles dependencies.
+
+0.01    2005-12-02 20:35:00
         - initial release

@@ -7,10 +7,10 @@ my $build = Module::Build->new(
     module_name        => 'Catalyst::Plugin::Authentication::Store::DBIC',
     requires           => {
         'Catalyst'                         => '5.49',
-        'Catalyst::Plugin::Authentication' => '0.02',
+        'Catalyst::Plugin::Authentication' => '0.03',
     },
     recommends         => {
-        'Catalyst::Plugin::Authorization::Roles'  => 0,
+        'Catalyst::Plugin::Authorization::Roles'  => '0.02',
         'Catalyst::Plugin::Session'               => '0.02',
     },
     create_readme => 1,
