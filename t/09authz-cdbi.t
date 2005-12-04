@@ -13,10 +13,14 @@ BEGIN {
         or plan skip_all =>
         "DBD::SQLite is required for this test";
         
+    eval { require DBIx::Class }
+        or plan skip_all =>
+        "DBIx::Class is required for this test";
+        
     eval { require Class::DBI }
         or plan skip_all =>
         "Class::DBI is required for this test";
-        
+
     eval { require Catalyst::Plugin::Authorization::Roles }
         or plan skip_all =>
         "Catalyst::Plugin::Authorization::Roles is required for this test";

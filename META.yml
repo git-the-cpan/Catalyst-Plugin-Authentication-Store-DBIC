@@ -1,6 +1,6 @@
 ---
 name: Catalyst-Plugin-Authentication-Store-DBIC
-version: 0.02
+version: 0.03
 author:
   - 'Andy Grundman, <andy@hybridized.org>'
 abstract: |-
@@ -11,12 +11,13 @@ requires:
   Catalyst: 5.49
   Catalyst::Plugin::Authentication: 0.03
 recommends:
-  Catalyst::Plugin::Authorization::Roles: 0.02
+  Catalyst::Plugin::Authorization::Roles: 0.03
   Catalyst::Plugin::Session: 0.02
+  Set::Object: 0
 provides:
   Catalyst::Plugin::Authentication::Store::DBIC:
     file: lib/Catalyst/Plugin/Authentication/Store/DBIC.pm
-    version: 0.02
+    version: 0.03
   Catalyst::Plugin::Authentication::Store::DBIC::Backend:
     file: lib/Catalyst/Plugin/Authentication/Store/DBIC/Backend.pm
   Catalyst::Plugin::Authentication::Store::DBIC::User:

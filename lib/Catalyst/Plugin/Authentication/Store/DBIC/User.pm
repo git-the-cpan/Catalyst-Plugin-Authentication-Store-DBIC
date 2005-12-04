@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use base qw/Catalyst::Plugin::Authentication::User Class::Accessor::Fast/;
 
+use Set::Object ();
+
 BEGIN { __PACKAGE__->mk_accessors(qw/id config user store/) }
 
 sub new {
@@ -49,8 +51,17 @@ sub supported_features {
             $self->config->{auth}->{password_type} => 1,
         },
         session  => 1,
-        roles    => 1,
+        roles    => { self_check => 1 },
     };
+}
+
+sub check_roles {
+    my ( $self, @wanted_roles ) = @_;
+
+    my $have = Set::Object->new( $self->roles( @wanted_roles ) );
+    my $need = Set::Object->new( @wanted_roles );
+
+    $have->superset( $need );
 }
 
 sub roles {

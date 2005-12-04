@@ -1,0 +1,51 @@
+This file contains message digests of all files listed in MANIFEST,
+signed via the Module::Signature module, version 0.50.
+
+To verify the content in this distribution, first make sure you have
+Module::Signature installed, then type:
+
+    % cpansign -v
+
+It will check each file's integrity, as well as the signature's
+validity.  If "==> Signature verified OK! <==" is not displayed,
+the distribution may already have been compromised, and you should
+not run its Makefile.PL or Build.PL.
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+SHA1 63e3deca1869e9c0804c30bb63ec119b58a6719b .Build.PL.swp
+SHA1 81987261ded01ddee563e0d6e91f19eb0325c801 Build.PL
+SHA1 1a8286b9f95df16a84f4c538b2af61b277349d6f Changes
+SHA1 f095fe826eacc82b091c845793b6ae62937a6300 MANIFEST
+SHA1 588fca16bb4128b28dd336ab267d37532721c9a9 META.yml
+SHA1 a359d4072690a21ce63e4b393bdbc19d72b6be5a Makefile.PL
+SHA1 1a7f3e03b5866e53d80135cf116fb880c3244a1f README
+SHA1 cf3775f01b096b28693dd5b1e88bb88e2a361de6 lib/Catalyst/Plugin/Authentication/Store/DBIC.pm
+SHA1 a683d1316052c12372510e34e2bc246b79bdb624 lib/Catalyst/Plugin/Authentication/Store/DBIC/Backend.pm
+SHA1 bd52122486e81fc9c2828af2620978953483fce4 lib/Catalyst/Plugin/Authentication/Store/DBIC/User.pm
+SHA1 83dc58bb44bcd332be949ba09d4690760a680753 t/01use.t
+SHA1 86d255a7c9f065a13049108362c949b3e35a4c24 t/02pod.t
+SHA1 e923679a1bbd8eb8f727e46f5906af25de27ec97 t/03podcoverage.t
+SHA1 557e7dec0c63f92e2d3acb3931c25f59d5fb1704 t/04auth-clear.t
+SHA1 2f318787faf3809a3d07134c368c07d2d9da2ce5 t/05auth-crypted.t
+SHA1 e6c7cbad6ebb281ccc2dd05c81d7f6762d98c61e t/06auth-hashed.t
+SHA1 0da8c7eedad296399737315e4b1f6142c5e90ab9 t/07auth-sessions.t
+SHA1 5c0c0e15d06f96c570b3b8778c168ca6f3fd48a9 t/08authz-dbic.t
+SHA1 8c7ff396ea2e00fec0906c2a7bfca72b28dbee86 t/09authz-cdbi.t
+SHA1 398d9e761f859cc922f2e6214e30f366c807aca4 t/lib/TestApp.pm
+SHA1 0f4395cbe8ace47a3858cb3591409ab6500ba5db t/lib/TestApp/Model/CDBI/CDBI.pm
+SHA1 3b8031a73178027f4380d1489805373f0f6ec502 t/lib/TestApp/Model/CDBI/Role.pm
+SHA1 3b8b763aa136934079e51a3dcc4b1e6551fb2d5a t/lib/TestApp/Model/CDBI/User.pm
+SHA1 6a2a6af43bcda5a3dcc82f366f0e765e0959c566 t/lib/TestApp/Model/CDBI/UserRole.pm
+SHA1 8eece80cd11ed5b4e9e9e76cd55639e907278c3e t/lib/TestApp/Model/DBIC.pm
+SHA1 d1e1f8ccd513b7753cd853539155fb37c92c7aa5 t/lib/TestApp/Model/Role.pm
+SHA1 e12cab7ceefe9c1dde6f98670f97f8ee53358520 t/lib/TestApp/Model/User.pm
+SHA1 bb2f8d20ef668838ef393933689b6c983b0b269b t/lib/TestApp/Model/UserRole.pm
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (Darwin)
+
+iD8DBQFDk08CVCwRwOvSdBgRArxAAJ9pnAGwC5Xht1fJj1pe8GOvjVpz1QCfZmr8
+fgKyNNE9s12fAgch0XcNZJc=
+=0zY2
+-----END PGP SIGNATURE-----
