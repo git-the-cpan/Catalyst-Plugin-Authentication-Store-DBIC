@@ -1,13 +1,9 @@
-.Build.PL.swp
 Build.PL
 Changes
 lib/Catalyst/Plugin/Authentication/Store/DBIC.pm
 lib/Catalyst/Plugin/Authentication/Store/DBIC/Backend.pm
 lib/Catalyst/Plugin/Authentication/Store/DBIC/User.pm
-Makefile.PL
 MANIFEST			This list of files
-META.yml
-README
 t/01use.t
 t/02pod.t
 t/03podcoverage.t
@@ -26,4 +22,6 @@ t/lib/TestApp/Model/DBIC.pm
 t/lib/TestApp/Model/Role.pm
 t/lib/TestApp/Model/User.pm
 t/lib/TestApp/Model/UserRole.pm
-SIGNATURE    Added here by Module::Build
+META.yml
+Makefile.PL
+README

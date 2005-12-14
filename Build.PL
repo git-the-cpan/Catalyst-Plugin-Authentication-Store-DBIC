@@ -8,14 +8,13 @@ my $build = Module::Build->new(
     requires           => {
         'Catalyst'                         => '5.49',
         'Catalyst::Plugin::Authentication' => '0.03',
+        'Set::Object'                      => 0,
     },
     recommends         => {
         'Catalyst::Plugin::Authorization::Roles'  => '0.03',
-        'Set::Object'                             => 0,
         'Catalyst::Plugin::Session'               => '0.02',
     },
     create_readme => 1,
-    sign          => 1,
 );
 $build->create_build_script;
  

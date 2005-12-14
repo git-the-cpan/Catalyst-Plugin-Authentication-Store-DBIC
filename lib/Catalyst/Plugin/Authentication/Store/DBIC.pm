@@ -3,7 +3,7 @@ package Catalyst::Plugin::Authentication::Store::DBIC;
 use strict;
 use warnings;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use Catalyst::Plugin::Authentication::Store::DBIC::Backend;
 
