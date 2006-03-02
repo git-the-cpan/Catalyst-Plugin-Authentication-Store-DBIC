@@ -3,7 +3,7 @@ package Catalyst::Plugin::Authentication::Store::DBIC;
 use strict;
 use warnings;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 use Catalyst::Plugin::Authentication::Store::DBIC::Backend;
 
@@ -11,23 +11,47 @@ sub setup {
     my $c = shift;
     
     # default values
-    $c->config->{authentication}->{dbic}->{user_field}     ||= 'user';
-    $c->config->{authentication}->{dbic}->{password_field} ||= 'password';
+    $c->config->{authentication}{dbic}{user_field}     ||= 'user';
+    $c->config->{authentication}{dbic}{password_field} ||= 'password';
+    $c->config->{authentication}{dbic}{catalyst_user_class} ||= 
+        'Catalyst::Plugin::Authentication::Store::DBIC::User';
 
     $c->default_auth_store(
         Catalyst::Plugin::Authentication::Store::DBIC::Backend->new( {
-            auth  => $c->config->{authentication}->{dbic},
-            authz => $c->config->{authorization}->{dbic}
+            auth  => $c->config->{authentication}{dbic},
+            authz => $c->config->{authorization}{dbic}
         } )
     );
 
     $c->NEXT::setup(@_);
 }
 
+sub setup_finished {
+    my $c = shift;
+
+    return $c->NEXT::setup_finished unless @_;
+    
+    my $config = $c->default_auth_store->config;
+    if (my $user_class = $config->{auth}{user_class}) {
+        my $model = $c->model($user_class);
+        $config->{auth}{user_class} = ref $model ? $model
+            : $user_class->can('resultset_instance') ? $user_class->resultset_instance
+            : $user_class;
+    }
+    if (my $role_class = $config->{authz}{role_class}) {
+        my $model = $c->model($role_class);
+        $config->{authz}{role_class} = ref $model ? $model
+            : $role_class->can('resultset_instance') ? $role_class->resultset_instance
+            : $role_class;
+    }
+    
+    $c->NEXT::setup_finished(@_);
+}
+
 sub user_object {
     my $c = shift;
     
-    return ( $c->user_exists ) ? $c->user->user : undef;
+    return ( $c->user_exists ) ? $c->user->obj : undef;
 }
 
 1;
@@ -50,7 +74,7 @@ authorization against a DBIx::Class or Class::DBI model.
         /;
 
     # Authentication
-    __PACKAGE__->config->{authentication}->{dbic} = {
+    __PACKAGE__->config->{authentication}{dbic} = {
         user_class         => 'MyApp::Model::User',
         user_field         => 'username',
         password_field     => 'password',
@@ -61,7 +85,7 @@ authorization against a DBIx::Class or Class::DBI model.
     # Authorization using a many-to-many role relationship
     # For more detailed instructions on setting up role-based auth, please
     # see the section below titled L<"Roles">.
-    __PACKAGE__->config->{authorization}->{dbic} = {
+    __PACKAGE__->config->{authorization}{dbic} = {
         role_class           => 'MyApp::Model::Role',
         role_field           => 'role',
         role_rel             => 'map_user_role',            # DBIx::Class only        
@@ -94,7 +118,9 @@ options are supported.
 
 =head2 user_class
 
-The name of the class that represents a user object.
+The name of the class that represents a user object. Can be the full class
+name, or just the model name (i.e. the part after App::Model). If it is a
+DBIC class, will automatically save and use the resultset from the DBIC schema.
 
 =head2 user_field
 
@@ -122,6 +148,14 @@ Use this option if your passwords are hashed with a prefix salt value.
 
 Use this option if your passwords are hashed with a postfix salt value.
 
+=head2 catalyst_user_class
+
+If using a plain Model class, which has username and password fields is not working
+for you, because you have more complex objects, or you need to do something else
+odd to fetch those values, or your role fields.. You can subclass 
+L<Catalyst::Plugin::Authentication::Store::DBIC::User>, and supply your class 
+name here.
+
 =head1 AUTHORIZATION CONFIGURATION
 
 Role-based authorization is configured by setting an authorization->{dbic}
@@ -131,7 +165,9 @@ see the section below titled L<"Roles">.
 
 =head2 role_class
 
-The name of the class that contains the list of roles.
+The name of the class that contains the list of roles. Can be the full class
+name, or just the model name (i.e. the part after App::Model). If it is a
+DBIC class, will automatically save and use the resultset from the DBIC schema.
 
 =head2 role_field
 
@@ -159,12 +195,23 @@ This is required for both DBIx::Class and Class::DBI.
 Class::DBI models only.  The name of the field in L<"user_role_class"> that
 contains the role ID.
 
-=head1 METHODS
-
 =head2 user_object
 
-Returns the DBIx::Class or Class::DBI object representing the user in the
-database.
+You can get the DBIx::Class or Class::DBI row object corresponding to the
+current user by calling C<< $c->user->obj >>. You can also get the value
+of an individual column with C<< $c->user->column_name >>, assuming it does
+not conflict with an existing method in
+L<<Catalyst::Plugin::Authentication::Store::DBIC>.
+
+Note: The earlier methods of C<< $c->user_object >> and C<< $c->user->user >> 
+still work, but are no longer recommended. The new API is cleaner and easier
+to use.
+
+=head2 setup_finished
+
+Finalises the setup of the Plugin by creating and user_class and
+role_class that is independent of whether it is Class::DBI or
+DBIx::Class
 
 =head1 INTERNAL METHODS
 
@@ -266,7 +313,7 @@ The steps for setting up roles with DBIx::Class are:
 For the above DBIx::Class model classes, the configuration would look like
 this:
 
-    __PACKAGE__->config->{authorization}->{dbic} = {
+    __PACKAGE__->config->{authorization}{dbic} = {
         role_class           => 'MyApp::Model::Role',
         role_field           => 'role',
         role_rel             => 'map_user_role',    
@@ -327,7 +374,7 @@ The steps for setting up roles with Class::DBI are:
 For the above Class::DBI model classes, the configuration would look like
 this:
 
-    __PACKAGE__->config->{authorization}->{dbic} = {
+    __PACKAGE__->config->{authorization}{dbic} = {
         role_class           => 'MyApp::Model::Role',
         role_field           => 'role',
         user_role_class      => 'MyApp::Model::UserRole',

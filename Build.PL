@@ -8,11 +8,13 @@ my $build = Module::Build->new(
     requires           => {
         'Catalyst'                         => '5.49',
         'Catalyst::Plugin::Authentication' => '0.03',
-        'Set::Object'                      => 0,
+        'Set::Object'                      => '1.14',
     },
     recommends         => {
         'Catalyst::Plugin::Authorization::Roles'  => '0.03',
         'Catalyst::Plugin::Session'               => '0.02',
+        'DBIx::Class'                             => 0,
+        'Class::DBI'                              => 0,
     },
     create_readme => 1,
 );

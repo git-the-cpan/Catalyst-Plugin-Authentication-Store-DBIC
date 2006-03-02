@@ -11,21 +11,16 @@ TestApp->setup( @{$ENV{TESTAPP_PLUGINS}} );
 sub user_login : Global {
     my ( $self, $c ) = @_;
     
-    if ( $c->req->params->{username} && $c->req->params->{password} ) {
-        $c->login(
-            $c->req->params->{username},
-            $c->req->params->{password}
-        );
-        
-        if ( $c->user_exists ) {
-            if ( $c->req->params->{detach} ) {
-                $c->detach( $c->req->params->{detach} );
-            }
-            $c->res->body( 'logged in' );
+    $c->login;
+    
+    if ( $c->user_exists ) {
+        if ( $c->req->params->{detach} ) {
+            $c->detach( $c->req->params->{detach} );
         }
-        else {
-            $c->res->body( 'not logged in' );
-        }
+        $c->res->body( 'logged in' );
+    }
+    else {
+        $c->res->body( 'not logged in' );
     }
 }
 

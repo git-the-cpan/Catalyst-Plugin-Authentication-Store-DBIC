@@ -29,7 +29,7 @@ BEGIN {
         name => 'TestApp',
         authentication => {
             dbic => {
-                user_class     => 'TestApp::Model::User',
+                user_class     => 'TestApp::Model::DBIC::User',
                 user_field     => 'username',
                 password_field => 'password',
                 password_type  => 'clear',
@@ -48,21 +48,7 @@ BEGIN {
     ];
 }
 
-# create the database
-my $db_file = $ENV{TESTAPP_DB_FILE};
-unlink $db_file if -e $db_file;
-
-my $dbh = DBI->connect( "dbi:SQLite:$db_file" ) or die $DBI::errstr;
-my $sql = qq{
-    CREATE TABLE user (
-        id       INTEGER PRIMARY KEY,
-        username TEXT,
-        password TEXT
-    );
-    INSERT INTO user VALUES (1, 'andyg', 'hackme')
-};
-$dbh->do( $_ ) for split /;/, $sql;
-$dbh->disconnect;
+use SetupDB;
 
 use Catalyst::Test 'TestApp';
 
@@ -85,4 +71,4 @@ use Catalyst::Test 'TestApp';
 }
 
 # clean up
-unlink $db_file;
+unlink $ENV{TESTAPP_DB_FILE};

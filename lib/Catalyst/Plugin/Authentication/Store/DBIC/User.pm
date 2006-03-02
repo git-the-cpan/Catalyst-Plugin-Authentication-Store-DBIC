@@ -3,52 +3,52 @@ package Catalyst::Plugin::Authentication::Store::DBIC::User;
 use strict;
 use warnings;
 use base qw/Catalyst::Plugin::Authentication::User Class::Accessor::Fast/;
+use Scalar::Util;
 
 use Set::Object ();
 
-BEGIN { __PACKAGE__->mk_accessors(qw/id config user store/) }
+BEGIN { __PACKAGE__->mk_accessors(qw/id config obj store/) }
 
 sub new {
     my ( $class, $id, $config ) = @_;
     
     # retrieve the user from the database
-    my ($user) = $config->{auth}->{user_class}->search( {
-        $config->{auth}->{user_field} => $id
-    } );
-    
-    return unless $user;
+    my $user_obj = $config->{auth}{user_class}->search( { $config->{auth}{user_field} => $id } )->first;
+
+    return unless $user_obj;
 
     bless {
         id     => $id,
         config => $config,
-        user   => $user,
+        obj    => $user_obj,
     }, $class;
 }
 
-sub crypted_password { $_[0]->password(@_) }
+*user = \&obj;
+*crypted_password = \&password;
+*hashed_password = \&password;
 
-sub hashed_password { $_[0]->password(@_) }
+sub hash_algorithm { shift->config->{auth}{password_hash_type} }
 
-sub hash_algorithm { shift->config->{auth}->{password_hash_type} }
+sub password_pre_salt { shift->config->{auth}{password_pre_salt} }
 
-sub password_pre_salt { shift->config->{auth}->{password_pre_salt} }
-
-sub password_post_salt { shift->config->{auth}->{password_post_salt} }
+sub password_post_salt { shift->config->{auth}{password_post_salt} }
 
 sub password {
     my $self = shift;
-    
-    my $password_field = $self->config->{auth}->{password_field};
-    return $self->user->$password_field;
+   
+    return undef unless defined $self->user;
+    my $password_field = $self->config->{auth}{password_field};
+    return $self->obj->$password_field;
 }
 
 sub supported_features {
     my $self = shift;
-    $self->config->{auth}->{password_type} ||= 'clear';
+    $self->config->{auth}{password_type} ||= 'clear';
     
     return {
         password => {
-            $self->config->{auth}->{password_type} => 1,
+            $self->config->{auth}{password_type} => 1,
         },
         session  => 1,
         roles    => { self_check => 1 },
@@ -80,7 +80,7 @@ sub roles {
     $cfg->{user_role_role_field} ||= $cfg->{role_field};
     
     # optimized join if using DBIC
-    if ( $cfg->{role_class}->isa( 'DBIx::Class' ) ) {
+    if (Scalar::Util::blessed($cfg->{role_class})) {
         my $search = { 
             $cfg->{role_rel} . '.' . $cfg->{user_role_user_field} 
                 => $self->user->id
@@ -90,6 +90,7 @@ sub roles {
                 -in => \@wanted_roles
             };
         }
+
         my $rs = $cfg->{role_class}->search(
             $search,
             { join => $cfg->{role_rel},
@@ -97,32 +98,26 @@ sub roles {
             }
         );
         return map { $_->$role_field } $rs->all;
-    }
-    else {
+    } else {
         # slow Class::DBI method
         # Retrieve only as many roles as necessary to fail the check
         my @roles;
 
         ROLE_CHECK:
         for my $role ( @wanted_roles ) {
-            if ( 
-                my $role_obj = $cfg->{role_class}->search( {
-                    $role_field => $role
-                } )->first
-            ) {
-                if ( 
-                    $cfg->{user_role_class}->search( {
+            if (my $role_obj = $cfg->{role_class}->search(
+                { $role_field => $role} )->first) 
+            {
+                if ( $cfg->{user_role_class}->search( {
                         $cfg->{user_role_user_field} => $self->user->id,
                         $cfg->{user_role_role_field} => $role_obj->id,
-                    } )
-                ) {
+                    } ) ) 
+                {
                     push @roles, $role;
-                }
-                else {  
+                } else {  
                     last ROLE_CHECK;
                 }
-            }
-            else {
+            } else {
                 last ROLE_CHECK;
             }
         }
@@ -135,6 +130,14 @@ sub for_session {
     my $self = shift;
     
     return $self->id;
+}
+
+sub AUTOLOAD {
+	my $self = shift;
+	(my $method) = (our $AUTOLOAD =~ /([^:]+)$/);
+	return if $method eq "DESTROY";
+
+	$self->obj->$method;
 }
 
 1;
@@ -174,6 +177,8 @@ This class implements a user object.
 =head2 supported_features
 
 =head2 roles
+
+=head2 check_roles
 
 =head2 for_session
 

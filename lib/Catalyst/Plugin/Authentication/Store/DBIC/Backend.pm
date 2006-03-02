@@ -3,12 +3,15 @@ package Catalyst::Plugin::Authentication::Store::DBIC::Backend;
 use strict;
 use warnings;
 use base qw/Class::Accessor::Fast/;
-use Catalyst::Plugin::Authentication::Store::DBIC::User;
+# use Catalyst::Plugin::Authentication::Store::DBIC::User;
 
 BEGIN { __PACKAGE__->mk_accessors(qw/config/) }
 
 sub new {
     my ( $class, $config ) = @_;
+
+    my $uc = $config->{auth}{catalyst_user_class};
+    eval "require $uc";
 
     bless { 
         config => $config
@@ -27,7 +30,9 @@ sub from_session {
 sub get_user {
     my ( $self, $id ) = @_;
     
-    my $user = Catalyst::Plugin::Authentication::Store::DBIC::User->new( 
+    my $uc = $self->config->{auth}{catalyst_user_class};
+
+    my $user = $uc->new( 
         $id,
         $self->config,
     );
@@ -44,7 +49,7 @@ sub user_supports {
     my $self = shift;
 
     # this can work as a class method
-    Catalyst::Plugin::Authentication::Store::DBIC::User->supports(@_);
+    $self->config->{auth}{catalyst_user_class}->supports(@_);
 }
 
 1;

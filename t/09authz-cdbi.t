@@ -12,11 +12,7 @@ BEGIN {
     eval { require DBD::SQLite }
         or plan skip_all =>
         "DBD::SQLite is required for this test";
-        
-    eval { require DBIx::Class }
-        or plan skip_all =>
-        "DBIx::Class is required for this test";
-        
+                
     eval { require Class::DBI }
         or plan skip_all =>
         "Class::DBI is required for this test";
@@ -59,37 +55,7 @@ BEGIN {
     ];
 }
 
-# create the database
-my $db_file = $ENV{TESTAPP_DB_FILE};
-unlink $db_file if -e $db_file;
-
-my $dbh = DBI->connect( "dbi:SQLite:$db_file" ) or die $DBI::errstr;
-my $sql = qq{
-    CREATE TABLE user (
-        id       INTEGER PRIMARY KEY,
-        username TEXT,
-        password TEXT
-    );
-    CREATE TABLE role (
-        id   INTEGER PRIMARY KEY,
-        role TEXT
-    );
-    CREATE TABLE user_role (
-        id   INTEGER PRIMARY KEY,
-        user INTEGER,
-        role INTEGER,
-        UNIQUE (user, role)
-    );
-    INSERT INTO user VALUES (1, 'andyg', 'hackme');
-    INSERT INTO user VALUES (2, 'nuffin', 'much');
-    INSERT INTO role VALUES (1, 'admin');
-    INSERT INTO role VALUES (2, 'user');
-    INSERT INTO user_role VALUES (1, 1, 1);
-    INSERT INTO user_role VALUES (2, 1, 2);
-    INSERT INTO user_role VALUES (3, 2, 2)
-};
-$dbh->do( $_ ) for split /;/, $sql;
-$dbh->disconnect;
+use SetupDB;
 
 use Catalyst::Test 'TestApp';
 
@@ -118,4 +84,4 @@ use Catalyst::Test 'TestApp';
 }
 
 # clean up
-unlink $db_file;
+unlink $ENV{TESTAPP_DB_FILE};

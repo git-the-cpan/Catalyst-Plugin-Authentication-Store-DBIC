@@ -1,8 +1,8 @@
 package TestApp::Model::DBIC;
 
+eval { require DBIx::Class }; return 1 if $@;
+@ISA = qw/DBIx::Class/;
 use strict;
-use warnings;
-use base 'DBIx::Class';
 
 __PACKAGE__->load_components( qw/Core DB/ );
 

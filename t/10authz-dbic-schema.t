@@ -16,6 +16,10 @@ BEGIN {
     eval { require DBIx::Class }
         or plan skip_all =>
         "DBIx::Class is required for this test";
+
+    eval { require Catalyst::Model::DBIC::Schema }
+        or plan skip_all =>
+	"Catalyst::Model::DBIC::Schema is required for the test";
         
     eval { require Catalyst::Plugin::Authorization::Roles }
         or plan skip_all =>
@@ -24,12 +28,15 @@ BEGIN {
     plan tests => 8;
     
     $ENV{TESTAPP_DB_FILE} = "$FindBin::Bin/auth.db";
-    
+
+    # TestDB::User and TestDB::Role are both
+    # Catalyst::Model::DBIC::Schema classes.
+
     $ENV{TESTAPP_CONFIG} = {
         name => 'TestApp',
         authentication => {
             dbic => {
-                user_class         => 'TestApp::Model::DBIC::User',
+                user_class         => 'DBICSchema::User',
                 user_field         => 'username',
                 password_field     => 'password',
                 password_type      => 'clear',
@@ -37,7 +44,7 @@ BEGIN {
         },
         authorization => {
             dbic => {
-                role_class           => 'TestApp::Model::DBIC::Role',
+                role_class           => 'DBICSchema::Role',
                 role_field           => 'role',
                 role_rel             => 'map_user_role',    
                 user_role_user_field => 'user',

@@ -1,5 +1,16 @@
 Revision history for Perl extension Catalyst::Plugin::Authentication::Store::DBIC
 
+0.05    2006-03-02 20:36:00
+        - make role_class and user_class auto-vivify to corresponding DBIC 
+          resultset when possible
+        - allow direct access to DBIC object columns via $c->user->column
+          (the object itself is $c->user->obj) and deprecated old ways to get object
+	- fix test suite -- should now pass, and hopefully not fail just because
+          don't have some modules, such as Class::DBI or Catalyst::Model::DBIC::Schema
+	- rename real_user_class to catalyst_user_class
+	- use recordsets rather than depend on list context
+	- return undef rather than complain when password is called without user
+
 0.04    2005-12-13 22:30:00
         - Fixed Build.PL, added dep on Set::Object.
 
