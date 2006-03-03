@@ -3,9 +3,6 @@ package Catalyst::Plugin::Authentication::Store::DBIC::Backend;
 use strict;
 use warnings;
 use base qw/Class::Accessor::Fast/;
-# use Catalyst::Plugin::Authentication::Store::DBIC::User;
-
-BEGIN { __PACKAGE__->mk_accessors(qw/config/) }
 
 sub new {
     my ( $class, $config ) = @_;
@@ -13,9 +10,7 @@ sub new {
     my $uc = $config->{auth}{catalyst_user_class};
     eval "require $uc";
 
-    bless { 
-        config => $config
-    }, $class;
+    bless { %{$config} }, $class;
 }
 
 sub from_session {
@@ -30,26 +25,19 @@ sub from_session {
 sub get_user {
     my ( $self, $id ) = @_;
     
-    my $uc = $self->config->{auth}{catalyst_user_class};
-
-    my $user = $uc->new( 
-        $id,
-        $self->config,
-    );
+    my $user = $self->{auth}{catalyst_user_class}->new( $id, { %{$self} } );
     
     if ( $user ) {
         $user->store( $self );
         return $user;
+    } else {
+        return;      
     }
-    
-    return;
 }
 
 sub user_supports {
-    my $self = shift;
-
     # this can work as a class method
-    $self->config->{auth}{catalyst_user_class}->supports(@_);
+    shift->{auth}{catalyst_user_class}->supports(@_);
 }
 
 1;
@@ -78,12 +66,14 @@ This class implements the storage backend for database authentication.
 
 =head1 SEE ALSO
 
-L<Catalyst::Plugin::Authentication>, 
+L<Catalyst::Plugin::Authentication::Store::DBIC>, L<Catalyst::Plugin::Authentication>,
 L<Catalyst::Plugin::Authorization::Roles>
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-Andy Grundman, <andy@hybridized.org>
+David Kamholz, <dkamholz@cpan.org>
+
+Andy Grundman
 
 =head1 COPYRIGHT
 

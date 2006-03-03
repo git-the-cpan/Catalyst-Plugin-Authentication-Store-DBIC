@@ -4,10 +4,9 @@ use strict;
 use warnings;
 use base qw/Catalyst::Plugin::Authentication::User Class::Accessor::Fast/;
 use Scalar::Util;
-
 use Set::Object ();
 
-BEGIN { __PACKAGE__->mk_accessors(qw/id config obj store/) }
+__PACKAGE__->mk_accessors(qw/id config obj store/);
 
 sub new {
     my ( $class, $id, $config ) = @_;
@@ -127,9 +126,7 @@ sub roles {
 }
 
 sub for_session {
-    my $self = shift;
-    
-    return $self->id;
+    shift->id;
 }
 
 sub AUTOLOAD {
@@ -186,9 +183,11 @@ This class implements a user object.
 
 L<Catalyst::Plugin::Authentication::Store::DBIC>
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-Andy Grundman, <andy@hybridized.org>
+David Kamholz, <dkamholz@cpan.org>
+
+Andy Grundman
 
 =head1 COPYRIGHT
 

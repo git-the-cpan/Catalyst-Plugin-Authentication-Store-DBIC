@@ -3,7 +3,7 @@ package Catalyst::Plugin::Authentication::Store::DBIC;
 use strict;
 use warnings;
 
-our $VERSION = '0.05';
+our $VERSION = '0.05001';
 
 use Catalyst::Plugin::Authentication::Store::DBIC::Backend;
 
@@ -31,7 +31,7 @@ sub setup_finished {
 
     return $c->NEXT::setup_finished unless @_;
     
-    my $config = $c->default_auth_store->config;
+    my $config = $c->default_auth_store;
     if (my $user_class = $config->{auth}{user_class}) {
         my $model = $c->model($user_class);
         $config->{auth}{user_class} = ref $model ? $model
@@ -384,12 +384,13 @@ this:
 
 =head1 SEE ALSO
 
-L<Catalyst::Plugin::Authentication>, 
-L<Catalyst::Plugin::Authorization::Roles>
+L<Catalyst::Plugin::Authentication>, L<Catalyst::Plugin::Authorization::Roles>
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-Andy Grundman, <andy@hybridized.org>
+David Kamholz, <dkamholz@cpan.org>
+
+Andy Grundman
 
 =head1 COPYRIGHT
 

@@ -303,8 +303,10 @@ ROLES
 SEE ALSO
     Catalyst::Plugin::Authentication, Catalyst::Plugin::Authorization::Roles
 
-AUTHOR
-    Andy Grundman, <andy@hybridized.org>
+AUTHORS
+    David Kamholz, <dkamholz@cpan.org>
+
+    Andy Grundman
 
 COPYRIGHT
     This program is free software, you can redistribute it and/or modify it

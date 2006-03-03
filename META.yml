@@ -1,27 +1,9 @@
----
+--- #YAML:1.0
 name: Catalyst-Plugin-Authentication-Store-DBIC
-version: 0.05
+version: 0.05001
 author:
-  - 'Andy Grundman, <andy@hybridized.org>'
-abstract: |-
-  Authentication and
-  authorization against a DBIx::Class or Class::DBI model.
+
+abstract: Authentication and
+authorization against a DBIx::Class or Class::DBI model.
 license: perl
-requires:
-  Catalyst: 5.49
-  Catalyst::Plugin::Authentication: 0.03
-  Set::Object: 1.14
-recommends:
-  Catalyst::Plugin::Authorization::Roles: 0.03
-  Catalyst::Plugin::Session: 0.02
-  Class::DBI: 0
-  DBIx::Class: 0
-provides:
-  Catalyst::Plugin::Authentication::Store::DBIC:
-    file: lib/Catalyst/Plugin/Authentication/Store/DBIC.pm
-    version: 0.05
-  Catalyst::Plugin::Authentication::Store::DBIC::Backend:
-    file: lib/Catalyst/Plugin/Authentication/Store/DBIC/Backend.pm
-  Catalyst::Plugin::Authentication::Store::DBIC::User:
-    file: lib/Catalyst/Plugin/Authentication/Store/DBIC/User.pm
-generated_by: Module::Build version 0.2611
+generated_by: Module::Build version 0.2612, without YAML.pm
