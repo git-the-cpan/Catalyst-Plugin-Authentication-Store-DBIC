@@ -1,5 +1,10 @@
 Revision history for Perl extension Catalyst::Plugin::Authentication::Store::DBIC
-    
+
+0.05002 2006-03-03 19:16:38
+    - fix oversight that prevented fully-specified models from working when using
+      Catalyst::Model::DBIC::Schema classes
+
+0.05001 2006-03-03 18:30:00
     - update author and email
     - clean up code a bit
 

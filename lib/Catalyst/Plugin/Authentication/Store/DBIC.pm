@@ -3,7 +3,7 @@ package Catalyst::Plugin::Authentication::Store::DBIC;
 use strict;
 use warnings;
 
-our $VERSION = '0.05001';
+our $VERSION = '0.05002';
 
 use Catalyst::Plugin::Authentication::Store::DBIC::Backend;
 
@@ -33,13 +33,13 @@ sub setup_finished {
     
     my $config = $c->default_auth_store;
     if (my $user_class = $config->{auth}{user_class}) {
-        my $model = $c->model($user_class);
+        my $model = $c->model($user_class) || $c->comp($user_class);
         $config->{auth}{user_class} = ref $model ? $model
             : $user_class->can('resultset_instance') ? $user_class->resultset_instance
             : $user_class;
     }
     if (my $role_class = $config->{authz}{role_class}) {
-        my $model = $c->model($role_class);
+        my $model = $c->model($role_class) || $c->comp($role_class);
         $config->{authz}{role_class} = ref $model ? $model
             : $role_class->can('resultset_instance') ? $role_class->resultset_instance
             : $role_class;

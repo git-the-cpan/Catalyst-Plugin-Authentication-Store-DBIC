@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: Catalyst-Plugin-Authentication-Store-DBIC
-version: 0.05001
+version: 0.05002
 author:
 
 abstract: Authentication and

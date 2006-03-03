@@ -44,7 +44,7 @@ BEGIN {
         },
         authorization => {
             dbic => {
-                role_class           => 'DBICSchema::Role',
+                role_class           => 'TestApp::Model::DBICSchema::Role',
                 role_field           => 'role',
                 role_rel             => 'map_user_role',    
                 user_role_user_field => 'user',
