@@ -12,7 +12,7 @@ BEGIN {
     eval { require DBD::SQLite }
         or plan skip_all =>
         "DBD::SQLite is required for this test";
-                
+
     eval { require Class::DBI }
         or plan skip_all =>
         "Class::DBI is required for this test";
@@ -22,9 +22,9 @@ BEGIN {
         "Catalyst::Plugin::Authorization::Roles is required for this test";
 
     plan tests => 8;
-    
+
     $ENV{TESTAPP_DB_FILE} = "$FindBin::Bin/auth.db";
-    
+
     $ENV{TESTAPP_CONFIG} = {
         name => 'TestApp',
         authentication => {
@@ -45,7 +45,7 @@ BEGIN {
             },
         },
     };
-    
+
     $ENV{TESTAPP_PLUGINS} = [
         qw/Authentication
            Authentication::Store::DBIC

@@ -7,7 +7,7 @@ use base 'DBIx::Class';
 __PACKAGE__->load_components(qw/ Core /);
 
 __PACKAGE__->table( 'role' );
-__PACKAGE__->add_columns( qw/id role/ );    
+__PACKAGE__->add_columns( qw/id role/ );
 __PACKAGE__->set_primary_key( 'id' );
 
 __PACKAGE__->has_many(

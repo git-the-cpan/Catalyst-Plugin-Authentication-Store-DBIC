@@ -7,7 +7,7 @@ my $build = Module::Build->new(
     module_name        => 'Catalyst::Plugin::Authentication::Store::DBIC',
     requires           => {
         'Catalyst'                         => '5.49',
-        'Catalyst::Plugin::Authentication' => '0.03',
+        'Catalyst::Plugin::Authentication' => '0.06',
         'Set::Object'                      => '1.14',
     },
     recommends         => {
@@ -19,4 +19,4 @@ my $build = Module::Build->new(
     create_readme => 1,
 );
 $build->create_build_script;
- 
+

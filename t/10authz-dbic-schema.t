@@ -12,21 +12,21 @@ BEGIN {
     eval { require DBD::SQLite }
         or plan skip_all =>
         "DBD::SQLite is required for this test";
-        
+
     eval { require DBIx::Class }
         or plan skip_all =>
         "DBIx::Class is required for this test";
 
     eval { require Catalyst::Model::DBIC::Schema }
         or plan skip_all =>
-	"Catalyst::Model::DBIC::Schema is required for the test";
-        
+        "Catalyst::Model::DBIC::Schema is required for the test";
+
     eval { require Catalyst::Plugin::Authorization::Roles }
         or plan skip_all =>
         "Catalyst::Plugin::Authorization::Roles is required for this test";
 
     plan tests => 8;
-    
+
     $ENV{TESTAPP_DB_FILE} = "$FindBin::Bin/auth.db";
 
     # TestDB::User and TestDB::Role are both
@@ -46,12 +46,12 @@ BEGIN {
             dbic => {
                 role_class           => 'TestApp::Model::DBICSchema::Role',
                 role_field           => 'role',
-                role_rel             => 'map_user_role',    
+                role_rel             => 'map_user_role',
                 user_role_user_field => 'user',
             },
         },
     };
-    
+
     $ENV{TESTAPP_PLUGINS} = [
         qw/Authentication
            Authentication::Store::DBIC

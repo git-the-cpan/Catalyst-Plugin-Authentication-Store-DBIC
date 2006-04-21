@@ -10,9 +10,9 @@ TestApp->setup( @{$ENV{TESTAPP_PLUGINS}} );
 
 sub user_login : Global {
     my ( $self, $c ) = @_;
-    
+
     $c->login;
-    
+
     if ( $c->user_exists ) {
         if ( $c->req->params->{detach} ) {
             $c->detach( $c->req->params->{detach} );
@@ -26,9 +26,9 @@ sub user_login : Global {
 
 sub user_logout : Global {
     my ( $self, $c ) = @_;
-    
+
     $c->logout;
-    
+
     if ( ! $c->user ) {
         $c->res->body( 'logged out' );
     }
@@ -39,13 +39,13 @@ sub user_logout : Global {
 
 sub user_login_session : Global {
     my ( $self, $c ) = @_;
-    
+
     if ( $c->req->params->{username} && $c->req->params->{password} ) {
         $c->login(
             $c->req->params->{username},
             $c->req->params->{password}
         );
-        
+
         if ( $c->user_exists ) {
             $c->res->body( $c->session->{__user} );
         }
@@ -57,7 +57,7 @@ sub user_login_session : Global {
 
 sub get_session_user : Global {
     my ( $self, $c ) = @_;
-    
+
     if ( $c->session->{__user} ) {
         $c->res->body( $c->session->{__user} );
     }
@@ -65,7 +65,7 @@ sub get_session_user : Global {
 
 sub is_admin : Global {
     my ( $self, $c ) = @_;
-    
+
     if ( $c->check_user_roles( 'admin' ) ) {
         $c->res->body( 'ok' );
     }
@@ -73,7 +73,7 @@ sub is_admin : Global {
 
 sub is_admin_user : Global {
     my ( $self, $c ) = @_;
-    
+
     if ( $c->check_user_roles( qw/admin user/ ) ) {
         $c->res->body( 'ok' );
     }

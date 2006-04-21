@@ -10,10 +10,10 @@ our $db_file = $ENV{TESTAPP_DB_FILE};
 __PACKAGE__->config(
     schema_class => 'TestDB',
     connect_info => [ "dbi:SQLite:$db_file",
-		      '',
-		      '',
-		      { AutoCommit => 1 },
-		    ],
+              '',
+              '',
+              { AutoCommit => 1 },
+            ],
 
 );
 

@@ -10,10 +10,15 @@ __PACKAGE__->mk_accessors(qw/id config obj store/);
 
 sub new {
     my ( $class, $id, $config ) = @_;
-    
-    # retrieve the user from the database
-    my $user_obj = $config->{auth}{user_class}->search( { $config->{auth}{user_field} => $id } )->first;
 
+    $config->{auth}{user_field} = [ $config->{auth}{user_field} ]
+        if !ref $config->{auth}{user_field};
+
+    my $query = @{$config->{auth}{user_field}} > 1
+        ? { -or => [ map { { $_ => $id } } @{$config->{auth}{user_field}} ] }
+        : { $config->{auth}{user_field}[0] => $id };
+
+    my $user_obj = $config->{auth}{user_class}->search($query)->first;
     return unless $user_obj;
 
     bless {
@@ -35,8 +40,8 @@ sub password_post_salt { shift->config->{auth}{password_post_salt} }
 
 sub password {
     my $self = shift;
-   
-    return undef unless defined $self->user;
+
+    return undef unless defined $self->obj;
     my $password_field = $self->config->{auth}{password_field};
     return $self->obj->$password_field;
 }
@@ -44,7 +49,7 @@ sub password {
 sub supported_features {
     my $self = shift;
     $self->config->{auth}{password_type} ||= 'clear';
-    
+
     return {
         password => {
             $self->config->{auth}{password_type} => 1,
@@ -65,24 +70,24 @@ sub check_roles {
 
 sub roles {
     my ( $self, @wanted_roles ) = @_;
-    
+
     my $cfg = $self->config->{authz};
-    
+
     unless ( $cfg ) {
-        Catalyst::Exception->throw( 
+        Catalyst::Exception->throw(
             message => 'No authorization configuration defined'
         );
     }
-    
+
     my $role_field = $cfg->{role_field} ||= 'role';
-    $cfg->{user_role_user_field} ||= $cfg->{user_field};
+    $cfg->{user_role_user_field} ||= $cfg->{user_field}->[0];
     $cfg->{user_role_role_field} ||= $cfg->{role_field};
-    
+
     # optimized join if using DBIC
     if (Scalar::Util::blessed($cfg->{role_class})) {
-        my $search = { 
-            $cfg->{role_rel} . '.' . $cfg->{user_role_user_field} 
-                => $self->user->id
+        my $search = {
+            $cfg->{role_rel} . '.' . $cfg->{user_role_user_field}
+                => $self->obj->id
         };
         if ( @wanted_roles ) {
             $search->{ 'me.' . $role_field } = {
@@ -93,7 +98,7 @@ sub roles {
         my $rs = $cfg->{role_class}->search(
             $search,
             { join => $cfg->{role_rel},
-              cols => [ 'me.' . $role_field ], 
+              cols => [ 'me.' . $role_field ],
             }
         );
         return map { $_->$role_field } $rs->all;
@@ -105,22 +110,22 @@ sub roles {
         ROLE_CHECK:
         for my $role ( @wanted_roles ) {
             if (my $role_obj = $cfg->{role_class}->search(
-                { $role_field => $role} )->first) 
+                { $role_field => $role} )->first)
             {
                 if ( $cfg->{user_role_class}->search( {
-                        $cfg->{user_role_user_field} => $self->user->id,
+                        $cfg->{user_role_user_field} => $self->obj->id,
                         $cfg->{user_role_role_field} => $role_obj->id,
-                    } ) ) 
+                    } ) )
                 {
                     push @roles, $role;
-                } else {  
+                } else {
                     last ROLE_CHECK;
                 }
             } else {
                 last ROLE_CHECK;
             }
         }
-        
+
         return @roles;
     }
 }
@@ -130,11 +135,11 @@ sub for_session {
 }
 
 sub AUTOLOAD {
-	my $self = shift;
-	(my $method) = (our $AUTOLOAD =~ /([^:]+)$/);
-	return if $method eq "DESTROY";
+    my $self = shift;
+    (my $method) = (our $AUTOLOAD =~ /([^:]+)$/);
+    return if $method eq "DESTROY";
 
-	$self->obj->$method;
+    $self->obj->$method(@_);
 }
 
 1;

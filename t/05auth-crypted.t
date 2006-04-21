@@ -12,15 +12,15 @@ BEGIN {
     eval { require DBD::SQLite }
         or plan skip_all =>
         "DBD::SQLite is required for this test";
-        
+
     eval { require DBIx::Class }
         or plan skip_all =>
-        "DBIx::Class is required for this test";      
+        "DBIx::Class is required for this test";
 
     plan tests => 2;
-    
+
     $ENV{TESTAPP_DB_FILE} = "$FindBin::Bin/auth.db";
-    
+
     $ENV{TESTAPP_CONFIG} = {
         name => 'TestApp',
         authentication => {
@@ -32,7 +32,7 @@ BEGIN {
             },
         },
     };
-    
+
     $ENV{TESTAPP_PLUGINS} = [
         qw/Authentication
            Authentication::Store::DBIC

@@ -5,7 +5,7 @@ eval { require DBIx::Class }; return 1 if $@;
 use strict;
 
 __PACKAGE__->table( 'role' );
-__PACKAGE__->add_columns( qw/id role/ );    
+__PACKAGE__->add_columns( qw/id role/ );
 __PACKAGE__->set_primary_key( 'id' );
 
 __PACKAGE__->has_many(

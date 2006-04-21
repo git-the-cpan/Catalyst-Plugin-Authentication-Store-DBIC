@@ -17,7 +17,7 @@ BEGIN {
         or plan skip_all =>
         "DBIx::Class is required for this test";
 
-    plan tests => 6;
+    plan tests => 2;
 
     $ENV{TESTAPP_DB_FILE} = "$FindBin::Bin/auth.db";
 
@@ -29,6 +29,7 @@ BEGIN {
                 user_field     => 'username',
                 password_field => 'password',
                 password_type  => 'clear',
+                auto_create_user => 1,
             },
         },
     };
@@ -47,20 +48,8 @@ use Catalyst::Test 'TestApp';
 
 # log a user in
 {
-    ok( my $res = request('http://localhost/user_login?username=andyg&password=hackme'), 'request ok' );
-    is( $res->content, 'logged in', 'user logged in ok' );
-}
-
-# invalid user
-{
-    ok( my $res = request('http://localhost/user_login?username=foo&password=bar'), 'request ok' );
-    is( $res->content, 'not logged in', 'user not logged in ok' );
-}
-
-# log the user out
-{
-    ok( my $res = request('http://localhost/user_logout'), 'request ok' );
-    is( $res->content, 'logged out', 'user logged out ok' );
+    ok( my $res = request('http://localhost/user_login?username=fred&password=derf'), 'request ok' );
+    is( $res->content, 'logged in', 'autocreated user logged in ok' );
 }
 
 # clean up

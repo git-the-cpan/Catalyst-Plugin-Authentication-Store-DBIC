@@ -18,16 +18,16 @@ SYNOPSIS
             password_type      => 'hashed',
             password_hash_type => 'SHA-1',
         };
-        
-    # Authorization using a many-to-many role relationship
+
+        # Authorization using a many-to-many role relationship
         # For more detailed instructions on setting up role-based auth, please
         # see the section below titled L<"Roles">.
         __PACKAGE__->config->{authorization}{dbic} = {
             role_class           => 'MyApp::Model::Role',
             role_field           => 'role',
-            role_rel             => 'map_user_role',            # DBIx::Class only        
+            role_rel             => 'map_user_role',            # DBIx::Class only
             user_role_user_field => 'user',
-            user_role_class      => 'MyApp::Model::UserRole',   # Class::DBI only        
+            user_role_class      => 'MyApp::Model::UserRole',   # Class::DBI only
             user_role_role_field => 'role',                     # Class::DBI only
         };
 
@@ -37,8 +37,8 @@ SYNOPSIS
 
             $c->login( $c->req->param("email"), $c->req->param("password"), );
         }
-        
-    # verify a role
+
+        # verify a role
         if ( $c->check_user_roles( 'admin' ) ) {
             $model->delete_everything;
         }
@@ -80,6 +80,13 @@ AUTHENTICATION CONFIGURATION
 
   password_post_salt
     Use this option if your passwords are hashed with a postfix salt value.
+
+  auto_create_user
+    If this option is set, when a user is not found, an "auto_create" method
+    will be called on your "user_class" with the arguments that were passed
+    to "get_user". If it returns true, it is assumed that a user
+    corresponding to the arguments has been created, and the user will be
+    looked up again.
 
   catalyst_user_class
     If using a plain Model class, which has username and password fields is
@@ -167,8 +174,8 @@ ROLES
             role INTEGER,
             PRIMARY KEY (user, role)
         );
-        
-    # Class::DBI may need the following user_role table
+
+        # Class::DBI may need the following user_role table
         CREATE TABLE user_role (
             id   INTEGER PRIMARY KEY,
             user INTEGER,
@@ -185,47 +192,59 @@ ROLES
     The steps for setting up roles with DBIx::Class are:
 
    1. Create Model classes and define relationships
-        # Example User Model
-        package MyApp::Model::User;
-
+        package MyApp::Model::DB;
         use strict;
-        use warnings;
-        use base 'MyApp::Model::DBIC';
+        use base 'Catalyst::Model::DBIC::Schema';
+        __PACKAGE__->config(
+            schema_class => 'MyApp::Schema',
+            connect_info => [ ... ],
+        );
+    
+        1;
+    
+        package MyApp::Schema;
+        use strict;
+        use base 'DBIx::Class::Schema';
+    
+        __PACKAGE__->load_classes;
 
+        1;
+
+        package MyApp::Schema::User;
+        use strict;
+        use base 'DBIx::Class';
+
+        __PACKAGE__->load_components( qw/ Core / );
         __PACKAGE__->table( 'user' );
         __PACKAGE__->add_columns( qw/id username password/ );
         __PACKAGE__->set_primary_key( 'id' );
 
         __PACKAGE__->has_many(
-            map_user_role => 'MyApp::Model::UserRole' => 'user' ); 
+            map_user_role => 'MyApp::Schema::UserRole' => 'user' );
 
         1;
-        
-    # Example Role Model
-        package MyApp::Model::Role;
-        
-    use strict;
-        use warnings;
-        use base 'MyApp::Model::DBIC';
-        
-    __PACKAGE__->table( 'role' );
-        __PACKAGE__->add_columns( qw/id role/ );    
+
+        package MyApp::Schema::Role;
+        use strict;
+        use base 'DBIx::Class';
+
+        __PACKAGE__->load_components( qw/ Core / );
+        __PACKAGE__->table( 'role' );
+        __PACKAGE__->add_columns( qw/id role/ );
         __PACKAGE__->set_primary_key( 'id' );
-        
-    __PACKAGE__->has_many(
-            map_user_role => 'MyApp::Model::UserRole' => 'role' );
+
+        __PACKAGE__->has_many(
+            map_user_role => 'MyApp::Schema::UserRole' => 'role' );
 
         1;
-        
-    # Example UserRole Model
+
         package MyApp::Model::UserRole;
-        
-    use strict;
-        use warnings;
-        use base 'MyApp::Model::DBIC';
-        
-    __PACKAGE__->table( 'user_role' );
-        __PACKAGE__->add_columns( qw/user role/ );                                 
+        use strict;
+        use base 'DBIx::Class';
+
+        __PACKAGE__->load_components( qw/ Core / );
+        __PACKAGE__->table( 'user_role' );
+        __PACKAGE__->add_columns( qw/user role/ );
         __PACKAGE__->set_primary_key( qw/user role/ );
 
         1;
@@ -235,9 +254,9 @@ ROLES
     like this:
 
         __PACKAGE__->config->{authorization}{dbic} = {
-            role_class           => 'MyApp::Model::Role',
+            role_class           => 'DB::Role',
             role_field           => 'role',
-            role_rel             => 'map_user_role',    
+            role_rel             => 'map_user_role',
             user_role_user_field => 'user',
         };
 
@@ -249,11 +268,13 @@ ROLES
     The steps for setting up roles with Class::DBI are:
 
    1. Create Model classes
-        # Example User Model
-        package MyApp::Model::User;
-
+        package MyApp::Model::CDBI;
         use strict;
-        use warnings;
+        use base 'Class::DBI';
+        __PACKAGE__->connection(...);
+
+        package MyApp::Model::User;
+        use strict;
         use base 'MyApp::Model::CDBI';
 
         __PACKAGE__->table  ( 'user' );
@@ -261,28 +282,22 @@ ROLES
         __PACKAGE__->columns( Essential => qw/username password/ );
 
         1;
-        
-    # Example Role Model
+
         package MyApp::Model::Role;
-        
-    use strict;
-        use warnings;
+        use strict;
         use base 'MyApp::Model::CDBI';
-        
-    __PACKAGE__->table  ( 'role' );
+
+        __PACKAGE__->table  ( 'role' );
         __PACKAGE__->columns( Primary   => qw/id/ );
         __PACKAGE__->columns( Essential => qw/role/ );
-        
-    1;
-        
-    # Example UserRole Model
+
+        1;
+
         package MyApp::Model::UserRole;
-        
-    use strict;
-        use warnings;
+        use strict;
         use base 'MyApp::Model::CDBI';
-        
-    __PACKAGE__->table  ( 'user_role' );
+
+        __PACKAGE__->table  ( 'user_role' );
         __PACKAGE__->columns( Primary   => qw/id/ );
         __PACKAGE__->columns( Essential => qw/user role/ );
 
@@ -296,7 +311,7 @@ ROLES
             role_class           => 'MyApp::Model::Role',
             role_field           => 'role',
             user_role_class      => 'MyApp::Model::UserRole',
-            user_role_user_field => 'user',        
+            user_role_user_field => 'user',
             user_role_role_field => 'role',
         };
 

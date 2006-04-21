@@ -9,6 +9,11 @@ __PACKAGE__->add_columns( qw/id username password/ );
 __PACKAGE__->set_primary_key( 'id' );
 
 __PACKAGE__->has_many(
-    map_user_role => 'TestApp::Model::DBIC::UserRole' => 'user' ); 
+    map_user_role => 'TestApp::Model::DBIC::UserRole' => 'user' );
+
+*DBIx::Class::ResultSet::auto_create = sub {
+    my ($self,$id,$password) = @_;
+    return $self->create({ username => $id, password => $password });
+};
 
 1;

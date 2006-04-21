@@ -9,35 +9,38 @@ sub new {
 
     my $uc = $config->{auth}{catalyst_user_class};
     eval "require $uc";
+    die $@ if $@;
 
     bless { %{$config} }, $class;
 }
 
 sub from_session {
     my ( $self, $c, $id ) = @_;
-    
+
     return $id if ref $id;
-    
+
     # XXX: hits the database on every request?  Not good...
     return $self->get_user( $id );
 }
 
 sub get_user {
-    my ( $self, $id ) = @_;
-    
+    my ( $self, $id, @rest ) = @_;
+
     my $user = $self->{auth}{catalyst_user_class}->new( $id, { %{$self} } );
-    
+
     if ( $user ) {
         $user->store( $self );
+        $user->obj->auto_update( $id, @rest ) if $self->{auth}{auto_update_user};
         return $user;
-    } else {
-        return;      
+    } elsif ( $self->{auth}{auto_create_user} ) {
+        $self->{auth}{user_class}->auto_create( $id, @rest ) and return $self->get_user( $id );
     }
+    return undef;
 }
 
 sub user_supports {
     # this can work as a class method
-    shift->{auth}{catalyst_user_class}->supports(@_);
+    shift->{auth}{catalyst_user_class}->supports( @_ );
 }
 
 1;
