@@ -1,7 +1,15 @@
 Revision history for Perl extension Catalyst::Plugin::Authentication::Store::DBIC
 
-0.06 2006-04-21 14:44:05
-	- Die on eval error in Backend.
+0.07 2006-06-30 01:08:47 
+    - make the User class stringify to the user id
+    - documentation fixes
+    - move most CDBI-specific code into its own class (User::CDBI)
+    - better DBIx::Class vs. Class::DBI detection
+    - add session_data support and session_data_field option
+    - add salted_hash support (patch from Russell Jenkins)
+
+0.06  2006-04-20 10:36:00
+    - Die on eval error in Backend.
     - update documentation
     - allow multiple username fields
     - add auto_create_user and auto_update_user options

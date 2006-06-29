@@ -7,7 +7,8 @@ my $sql = q{
     CREATE TABLE user (
         id       INTEGER PRIMARY KEY,
         username TEXT,
-        password TEXT
+        password TEXT,
+        session_data TEXT
     );
     CREATE TABLE role (
         id   INTEGER PRIMARY KEY,
@@ -19,10 +20,11 @@ my $sql = q{
         role INTEGER
     );
 
-    INSERT INTO user VALUES (1, 'andyg', 'hackme');
-    INSERT INTO user VALUES (2, 'sri', 'sacqLGlWjDRw2');
-    INSERT INTO user VALUES (3, 'chansen', 'cc9597d31f0503bded5df310eb5f28fb4d49fb0f');
-    INSERT INTO user VALUES (4, 'nuffin', 'much');
+    INSERT INTO user VALUES (1, 'andyg', 'hackme', NULL);
+    INSERT INTO user VALUES (2, 'sri', 'sacqLGlWjDRw2', NULL);
+    INSERT INTO user VALUES (3, 'chansen', 'cc9597d31f0503bded5df310eb5f28fb4d49fb0f', NULL);
+    INSERT INTO user VALUES (4, 'nuffin', 'much', NULL);
+    INSERT INTO user VALUES (5, 'rusty', '{SSHA}ncHs4XYmQKJqL+VuyNQzQjwRXfvu6noa', NULL);
     INSERT INTO role VALUES (1, 'admin');
     INSERT INTO role VALUES (2, 'user');
     INSERT INTO user_role VALUES (1, 1, 1);

@@ -79,4 +79,15 @@ sub is_admin_user : Global {
     }
 }
 
+sub set_usersession : Global {
+    my ( $self, $c, $value ) = @_;
+    $c->user_session->{foo} = $value;
+    $c->res->body( 'ok' );
+}
+
+sub get_usersession : Global {
+    my ( $self, $c ) = @_;
+    $c->res->body( $c->user_session->{foo} || '' );
+}
+
 1;

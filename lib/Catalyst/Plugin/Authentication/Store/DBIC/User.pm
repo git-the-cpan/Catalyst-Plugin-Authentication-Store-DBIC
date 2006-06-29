@@ -3,16 +3,14 @@ package Catalyst::Plugin::Authentication::Store::DBIC::User;
 use strict;
 use warnings;
 use base qw/Catalyst::Plugin::Authentication::User Class::Accessor::Fast/;
-use Scalar::Util;
 use Set::Object ();
+
+use overload '""' => sub { shift->id }, 'bool' => sub { 1 }, fallback => 1;
 
 __PACKAGE__->mk_accessors(qw/id config obj store/);
 
 sub new {
     my ( $class, $id, $config ) = @_;
-
-    $config->{auth}{user_field} = [ $config->{auth}{user_field} ]
-        if !ref $config->{auth}{user_field};
 
     my $query = @{$config->{auth}{user_field}} > 1
         ? { -or => [ map { { $_ => $id } } @{$config->{auth}{user_field}} ] }
@@ -38,6 +36,8 @@ sub password_pre_salt { shift->config->{auth}{password_pre_salt} }
 
 sub password_post_salt { shift->config->{auth}{password_post_salt} }
 
+sub password_salt_len { shift->config->{auth}{password_salt_len} }
+
 sub password {
     my $self = shift;
 
@@ -54,9 +54,26 @@ sub supported_features {
         password => {
             $self->config->{auth}{password_type} => 1,
         },
-        session  => 1,
-        roles    => { self_check => 1 },
+        session         => 1,
+        session_data    => $self->{config}{auth}{session_data_field} ? 1 : 0,
+        roles           => { self_check => 1 },
     };
+}
+
+sub get_session_data {
+    my ( $self ) = @_;
+    my $col = $self->config->{auth}{session_data_field};
+    return $self->obj->$col;
+}
+
+sub store_session_data {
+    my ( $self, $data ) = @_;
+    my $col = $self->config->{auth}{session_data_field};
+    my $obj = $self->obj;
+    $obj->result_source->schema->txn_do(sub {
+        $obj->$col($data);
+        $obj->update;
+    });
 }
 
 sub check_roles {
@@ -71,63 +88,35 @@ sub check_roles {
 sub roles {
     my ( $self, @wanted_roles ) = @_;
 
-    my $cfg = $self->config->{authz};
-
-    unless ( $cfg ) {
+    unless ( $self->config->{authz} ) {
         Catalyst::Exception->throw(
             message => 'No authorization configuration defined'
         );
     }
 
-    my $role_field = $cfg->{role_field} ||= 'role';
-    $cfg->{user_role_user_field} ||= $cfg->{user_field}->[0];
-    $cfg->{user_role_role_field} ||= $cfg->{role_field};
+    return $self->_role_search(@wanted_roles);
+}
 
-    # optimized join if using DBIC
-    if (Scalar::Util::blessed($cfg->{role_class})) {
-        my $search = {
-            $cfg->{role_rel} . '.' . $cfg->{user_role_user_field}
-                => $self->obj->id
-        };
-        if ( @wanted_roles ) {
-            $search->{ 'me.' . $role_field } = {
-                -in => \@wanted_roles
-            };
+# optimized join if using DBIC
+sub _role_search {
+    my ($self, @wanted_roles) = @_;
+    my $cfg = $self->config->{authz};
+    my $role_field = $cfg->{role_field};
+    
+    my $search = {
+        $cfg->{role_rel} . '.' . $cfg->{user_role_user_field}
+            => $self->obj->id
+    };    
+    $search->{ "me.$role_field" } = { -in => \@wanted_roles } if @wanted_roles;
+
+    my $rs = $cfg->{role_class}->search(
+        $search,
+        {
+            join => $cfg->{role_rel},
+            columns => [ "me.$role_field" ],
         }
-
-        my $rs = $cfg->{role_class}->search(
-            $search,
-            { join => $cfg->{role_rel},
-              cols => [ 'me.' . $role_field ],
-            }
-        );
-        return map { $_->$role_field } $rs->all;
-    } else {
-        # slow Class::DBI method
-        # Retrieve only as many roles as necessary to fail the check
-        my @roles;
-
-        ROLE_CHECK:
-        for my $role ( @wanted_roles ) {
-            if (my $role_obj = $cfg->{role_class}->search(
-                { $role_field => $role} )->first)
-            {
-                if ( $cfg->{user_role_class}->search( {
-                        $cfg->{user_role_user_field} => $self->obj->id,
-                        $cfg->{user_role_role_field} => $role_obj->id,
-                    } ) )
-                {
-                    push @roles, $role;
-                } else {
-                    last ROLE_CHECK;
-                }
-            } else {
-                last ROLE_CHECK;
-            }
-        }
-
-        return @roles;
-    }
+    );
+    return map { $_->$role_field } $rs->all;
 }
 
 sub for_session {
@@ -173,6 +162,8 @@ This class implements a user object.
 =head2 password_pre_salt
 
 =head2 password_post_salt
+
+=head2 password_salt_len
 
 =head2 password
 

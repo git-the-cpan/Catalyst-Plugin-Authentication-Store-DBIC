@@ -26,7 +26,16 @@ BEGIN {
         or plan skip_all =>
         "Catalyst::Plugin::Session >= 0.02 is required for this test";
 
-    plan tests => 8;
+    eval { require Catalyst::Plugin::Session::PerUser;
+           die unless $Catalyst::Plugin::Session::PerUser::VERSION >= 0.03 }
+        or plan skip_all =>
+        "Catalyst::Plugin::Session::PerUser >= 0.03 is required for this test";
+
+    eval { require MIME::Base64 }
+        or plan skip_all =>
+        "MIME::Base64 is required for this test";
+
+    plan tests => 14;
 
     $ENV{TESTAPP_DB_FILE} = "$FindBin::Bin/auth.db";
 
@@ -38,6 +47,7 @@ BEGIN {
                 user_field     => 'username',
                 password_field => 'password',
                 password_type  => 'clear',
+                session_data_field => 'session_data',
             },
         },
     };
@@ -49,6 +59,7 @@ BEGIN {
            Session
            Session::Store::Dummy
            Session::State::Cookie
+           Session::PerUser
            /
     ];
 }
@@ -64,10 +75,28 @@ my $m = Test::WWW::Mechanize::Catalyst->new;
     $m->content_is( 'andyg', 'user logged in ok' );
 }
 
-# verify the user is still logged in
+# store a value in the user_session
 {
-    $m->get_ok( 'http://localhost/get_session_user', undef, 'request ok' );
-    $m->content_is( 'andyg', 'user still logged in' );
+    $m->get_ok( 'http://localhost/set_usersession/bar', undef, 'request ok' );
+    $m->content_is( 'ok', 'store value in user_session ok' );
+}
+
+# get the value back out
+{
+    $m->get_ok( 'http://localhost/get_usersession', undef, 'request ok' );
+    $m->content_is( 'bar', 'retrieve value from user_session ok' );
+}
+
+# store a different value in the user_session
+{
+    $m->get_ok( 'http://localhost/set_usersession/gorch', undef, 'request ok' );
+    $m->content_is( 'ok', 'store value in user_session ok' );
+}
+
+# get the value back out
+{
+    $m->get_ok( 'http://localhost/get_usersession', undef, 'request ok' );
+    $m->content_is( 'gorch', 'modify value in user_session ok' );
 }
 
 # log the user out
@@ -76,10 +105,10 @@ my $m = Test::WWW::Mechanize::Catalyst->new;
     $m->content_is( 'logged out', 'user logged out ok' );
 }
 
-# verify there is no session
+# verify there is no user_session
 {
-    $m->get_ok( 'http://localhost/get_session_user', undef, 'request ok' );
-    $m->content_is( '', "user's session deleted" );
+    $m->get_ok( 'http://localhost/get_usersession', undef, 'request ok' );
+    $m->content_is( '', 'user_session deleted' );
 }
 
 # clean up

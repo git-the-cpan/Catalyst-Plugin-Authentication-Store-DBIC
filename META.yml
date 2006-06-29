@@ -1,9 +1,34 @@
---- #YAML:1.0
+---
 name: Catalyst-Plugin-Authentication-Store-DBIC
-version: 0.06
+version: 0.07
 author:
-
-abstract: Authentication and
-authorization against a DBIx::Class or Class::DBI model.
+  - 'David Kamholz, <dkamholz@cpan.org>'
+abstract: Authentication and authorization against a DBIx::Class or Class::DBI model.
 license: perl
-generated_by: Module::Build version 0.2702, without YAML.pm
+resources:
+  license: http://dev.perl.org/licenses/
+requires:
+  Catalyst: 5.49
+  Catalyst::Plugin::Authentication: 0.06
+  DBI: 0
+  Set::Object: 1.14
+recommends:
+  Catalyst::Plugin::Authorization::Roles: 0.03
+  Catalyst::Plugin::Session::State::Cookie: 0.02
+  Class::DBI: 0
+  DBIx::Class: 0
+  Test::WWW::Mechanize::Catalyst: 0
+provides:
+  Catalyst::Plugin::Authentication::Store::DBIC:
+    file: lib/Catalyst/Plugin/Authentication/Store/DBIC.pm
+    version: 0.07
+  Catalyst::Plugin::Authentication::Store::DBIC::Backend:
+    file: lib/Catalyst/Plugin/Authentication/Store/DBIC/Backend.pm
+  Catalyst::Plugin::Authentication::Store::DBIC::User:
+    file: lib/Catalyst/Plugin/Authentication/Store/DBIC/User.pm
+  Catalyst::Plugin::Authentication::Store::DBIC::User::CDBI:
+    file: lib/Catalyst/Plugin/Authentication/Store/DBIC/User/CDBI.pm
+generated_by: Module::Build version 0.2801
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.2.html
+  version: 1.2

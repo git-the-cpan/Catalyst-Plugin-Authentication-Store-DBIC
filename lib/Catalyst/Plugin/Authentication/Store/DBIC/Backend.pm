@@ -11,6 +11,11 @@ sub new {
     eval "require $uc";
     die $@ if $@;
 
+    $config->{auth}{user_field} = [ $config->{auth}{user_field} ]
+        if !ref $config->{auth}{user_field};
+    $config->{authz}{role_field} ||= 'role';
+    $config->{authz}{user_role_user_field} ||= $config->{auth}{user_field}->[0];
+
     bless { %{$config} }, $class;
 }
 

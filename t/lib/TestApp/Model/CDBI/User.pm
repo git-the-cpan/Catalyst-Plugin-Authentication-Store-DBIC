@@ -6,6 +6,6 @@ use strict;
 
 __PACKAGE__->table  ( 'user' );
 __PACKAGE__->columns( Primary   => qw/id/ );
-__PACKAGE__->columns( Essential => qw/username password/ );
+__PACKAGE__->columns( Essential => qw/username password session_data/ );
 
 1;

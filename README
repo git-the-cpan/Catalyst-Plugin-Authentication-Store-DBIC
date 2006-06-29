@@ -12,7 +12,7 @@ SYNOPSIS
 
         # Authentication
         __PACKAGE__->config->{authentication}{dbic} = {
-            user_class         => 'MyApp::Model::User',
+            user_class         => 'MyApp::Model::DB::User',
             user_field         => 'username',
             password_field     => 'password',
             password_type      => 'hashed',
@@ -21,14 +21,14 @@ SYNOPSIS
 
         # Authorization using a many-to-many role relationship
         # For more detailed instructions on setting up role-based auth, please
-        # see the section below titled L<"Roles">.
+        # see the section below titled L<Roles>.
         __PACKAGE__->config->{authorization}{dbic} = {
-            role_class           => 'MyApp::Model::Role',
+            role_class           => 'MyApp::Model::DB::Role',
             role_field           => 'role',
-            role_rel             => 'map_user_role',            # DBIx::Class only
+            role_rel             => 'map_user_role',                # DBIx::Class only
             user_role_user_field => 'user',
-            user_role_class      => 'MyApp::Model::UserRole',   # Class::DBI only
-            user_role_role_field => 'role',                     # Class::DBI only
+            user_role_class      => 'MyApp::Model::DB::UserRole',   # Class::DBI only
+            user_role_role_field => 'role',                         # Class::DBI only
         };
 
         # log a user in
@@ -54,21 +54,20 @@ AUTHENTICATION CONFIGURATION
 
   user_class
     The name of the class that represents a user object. Can be the full
-    class name, or just the model name (i.e. the part after App::Model). If
-    it is a DBIC class, will automatically save and use the resultset from
-    the DBIC schema.
+    class name, or just the model name (i.e. the part after "MyApp::Model").
+    If it is a DBIC class, will automatically save and use the resultset
+    from the DBIC schema.
 
   user_field
-    The name of the column holding the user identifier (defaults to
-    ""user"")
+    The name of the column holding the user identifier (defaults to "user")
 
   password_field
     The name of the column holding the user's password (defaults to
-    ""password"")
+    "password")
 
   password_type
-    The type of password your user object stores. One of: clear, crypted, or
-    hashed. Defaults to clear.
+    The type of password your user object stores. One of: clear, crypted,
+    hashed, or salted_hash. Defaults to clear.
 
   password_hash_type
     If using a password_type of hashed, this option specifies the hashing
@@ -81,56 +80,91 @@ AUTHENTICATION CONFIGURATION
   password_post_salt
     Use this option if your passwords are hashed with a postfix salt value.
 
+  password_salt_len
+    Use this option to specify the salt length for salted_hash passwords
+    (defaults to 0).
+
   auto_create_user
     If this option is set, when a user is not found, an "auto_create" method
     will be called on your "user_class" with the arguments that were passed
-    to "get_user". If it returns true, it is assumed that a user
-    corresponding to the arguments has been created, and the user will be
-    looked up again.
+    to "get_user" in Catalyst::Plugin::Authentication::Store::DBIC::Backend.
+    If it returns true, it is assumed that a user corresponding to the
+    arguments has been created, and the user will be looked up again.
+
+  session_data_field
+    This option should be set to the name of an accessor in your model class
+    which can store and retreive a hashref. If this option is set, the user
+    object will advertise that it supports the feature "session_data", and
+    other code will be able to use the "$c->session_data" accessor. This can
+    be used in combination with other plugins that can make use of the
+    "session_data" feature, like Catalyst::Plugin::Session::PerUser. See the
+    documentation for one of those modules to see how to use this
+    functionality from a controller.
+
+    You can set up automatic inflation and deflation for the chosen field to
+    deal with the hash reference. Here's an example of how to do that in
+    DBIC with a "TEXT" column, MIME::Base64, and Storable:
+
+      package MySchema::Users;
+      use base qw/DBIx::Class/;
+      use Storable qw/freeze thaw/;
+      use MIME::Base64;
+
+      # define table, columns, primary key, etc. here
+
+      __PACKAGE__->inflate_column(
+          session_data => {
+              inflate => sub { thaw(decode_base64(shift)) },
+              deflate => sub { encode_base64(freeze(shift)) },
+          }
+      );
 
   catalyst_user_class
-    If using a plain Model class, which has username and password fields is
+    If using a plain model class which has username and password fields is
     not working for you, because you have more complex objects, or you need
-    to do something else odd to fetch those values, or your role fields..
-    You can subclass Catalyst::Plugin::Authentication::Store::DBIC::User,
-    and supply your class name here.
+    to do something else odd to fetch those values or your role fields, you
+    can subclass Catalyst::Plugin::Authentication::Store::DBIC::User, and
+    supply your class name here.
 
 AUTHORIZATION CONFIGURATION
     Role-based authorization is configured by setting an
     authorization->{dbic} hash reference in your application's config
     method. The following options are supported. For more detailed
     instructions on setting up roles, please see the section below titled
-    "Roles".
+    Roles.
 
   role_class
     The name of the class that contains the list of roles. Can be the full
-    class name, or just the model name (i.e. the part after App::Model). If
-    it is a DBIC class, will automatically save and use the resultset from
-    the DBIC schema.
+    class name, or just the model name (i.e. the part after "MyApp::Model").
+    If it is a DBIC class, will automatically save and use the resultset
+    from the DBIC schema.
 
   role_field
-    The name of the field in "role_class" that contains the role name.
+    The name of the field in role_class that contains the role name. The
+    role name is typically a text value like "admin".
 
   role_rel
     DBIx::Class models only. This field specifies the name of the
-    relationship in "role_class" that refers to the mapping table between
+    relationship in role_class that refers to the mapping table between
     users and roles. Using this relationship, DBIx::Class models can
     retrieve the list of roles for a user in a single SQL statement using a
     join.
 
   user_role_class
-    Class::DBI models only. The name of the class that contains the
-    many-to-many linking data between users and roles.
+    Class::DBI models only. The name of the class for the many-to-many
+    linking table between users and roles.
 
   user_role_user_field
-    The name of the field in "user_role_class" that contains the user ID.
-    This is required for both DBIx::Class and Class::DBI.
+    The name of the field in user_role_class that contains the user id. This
+    is required for both DBIx::Class and Class::DBI.
 
   user_role_role_field
-    Class::DBI models only. The name of the field in "user_role_class" that
-    contains the role ID.
+    Class::DBI models only. The name of the field in user_role_class that
+    contains the role id, which is a foreign key referencing the primary key
+    of the table corresponding to "role_class".
 
-  user_object
+METHODS
+  obj
     You can get the DBIx::Class or Class::DBI row object corresponding to
     the current user by calling "$c->user->obj". You can also get the value
     of an individual column with "$c->user->column_name", assuming it does
@@ -141,16 +175,16 @@ AUTHORIZATION CONFIGURATION
     still work, but are no longer recommended. The new API is cleaner and
     easier to use.
 
-  setup_finished
-    Finalises the setup of the Plugin by creating and user_class and
-    role_class that is independent of whether it is Class::DBI or
-    DBIx::Class
-
 INTERNAL METHODS
   setup
+  setup_finished
+    Finalizes the setup of the plugin by filling in the "user_class" and
+    "role_class" config values with the appropriate DBIx::Class resultsets.
+    Does nothing if you are using Class::DBI.
+
 ROLES
-    This section will attempt to provide detailed instructions for
-    configuring role-based authorization in your application.
+    This section attempts to provide detailed instructions for configuring
+    role-based authorization in your application.
 
   Database Schema
     The basic database structure for roles consists of the following 3
@@ -170,16 +204,16 @@ ROLES
 
         # DBIx::Class can handle multiple primary keys
         CREATE TABLE user_role (
-            user INTEGER,
-            role INTEGER,
+            user INTEGER REFERENCES user,
+            role INTEGER REFERENCES role,
             PRIMARY KEY (user, role)
         );
 
         # Class::DBI may need the following user_role table
         CREATE TABLE user_role (
             id   INTEGER PRIMARY KEY,
-            user INTEGER,
-            role INTEGER,
+            user INTEGER REFERENCES user,
+            role INTEGER REFERENCES role,
             UNIQUE (user, role)
         );
 
@@ -199,13 +233,13 @@ ROLES
             schema_class => 'MyApp::Schema',
             connect_info => [ ... ],
         );
-    
+
         1;
-    
+
         package MyApp::Schema;
         use strict;
         use base 'DBIx::Class::Schema';
-    
+
         __PACKAGE__->load_classes;
 
         1;
@@ -238,7 +272,7 @@ ROLES
 
         1;
 
-        package MyApp::Model::UserRole;
+        package MyApp::Schema::UserRole;
         use strict;
         use base 'DBIx::Class';
 
@@ -268,14 +302,14 @@ ROLES
     The steps for setting up roles with Class::DBI are:
 
    1. Create Model classes
-        package MyApp::Model::CDBI;
+        package MyApp::Model::DB;
         use strict;
         use base 'Class::DBI';
         __PACKAGE__->connection(...);
 
-        package MyApp::Model::User;
+        package MyApp::Model::DB::User;
         use strict;
-        use base 'MyApp::Model::CDBI';
+        use base 'MyApp::Model::DB';
 
         __PACKAGE__->table  ( 'user' );
         __PACKAGE__->columns( Primary   => qw/id/ );
@@ -283,9 +317,9 @@ ROLES
 
         1;
 
-        package MyApp::Model::Role;
+        package MyApp::Model::DB::Role;
         use strict;
-        use base 'MyApp::Model::CDBI';
+        use base 'MyApp::Model::DB';
 
         __PACKAGE__->table  ( 'role' );
         __PACKAGE__->columns( Primary   => qw/id/ );
@@ -293,9 +327,9 @@ ROLES
 
         1;
 
-        package MyApp::Model::UserRole;
+        package MyApp::Model::DB::UserRole;
         use strict;
-        use base 'MyApp::Model::CDBI';
+        use base 'MyApp::Model::DB';
 
         __PACKAGE__->table  ( 'user_role' );
         __PACKAGE__->columns( Primary   => qw/id/ );
@@ -308,9 +342,9 @@ ROLES
     like this:
 
         __PACKAGE__->config->{authorization}{dbic} = {
-            role_class           => 'MyApp::Model::Role',
+            role_class           => 'MyApp::Model::DB::Role',
             role_field           => 'role',
-            user_role_class      => 'MyApp::Model::UserRole',
+            user_role_class      => 'MyApp::Model::DB::UserRole',
             user_role_user_field => 'user',
             user_role_role_field => 'role',
         };
