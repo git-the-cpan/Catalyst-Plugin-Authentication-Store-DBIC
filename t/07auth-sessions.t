@@ -26,6 +26,10 @@ BEGIN {
         or plan skip_all =>
         "Catalyst::Plugin::Session >= 0.02 is required for this test";
 
+    eval { require Catalyst::Plugin::Session::State::Cookie }
+        or plan skip_all =>
+        "Catalyst::Plugin::Session::State::Cookie is required for this test";
+
     plan tests => 8;
 
     $ENV{TESTAPP_DB_FILE} = "$FindBin::Bin/auth.db";

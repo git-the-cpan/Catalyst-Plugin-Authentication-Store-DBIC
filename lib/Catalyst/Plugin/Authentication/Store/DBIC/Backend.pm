@@ -23,24 +23,29 @@ sub from_session {
     my ( $self, $c, $id ) = @_;
 
     return $id if ref $id;
+    
+    return $self->{auth}{catalyst_user_class}->new( $id, { %{$self} } );
 
-    # XXX: hits the database on every request?  Not good...
-    return $self->get_user( $id );
 }
 
 sub get_user {
     my ( $self, $id, @rest ) = @_;
 
     my $user = $self->{auth}{catalyst_user_class}->new( $id, { %{$self} } );
+	$user->id($user->canonical_id);
 
-    if ( $user ) {
-        $user->store( $self );
-        $user->obj->auto_update( $id, @rest ) if $self->{auth}{auto_update_user};
-        return $user;
-    } elsif ( $self->{auth}{auto_create_user} ) {
+
+    if( $self->{auth}{auto_create_user} and !$user->obj ) {
         $self->{auth}{user_class}->auto_create( $id, @rest ) and return $self->get_user( $id );
     }
-    return undef;
+
+    $user->store( $self );
+
+    if( $self->{auth}{auto_update_user} && $user->obj ) {
+        $user->obj->auto_update( $id, @rest );
+    }
+
+    return $user;
 }
 
 sub user_supports {
@@ -49,6 +54,7 @@ sub user_supports {
 }
 
 1;
+
 __END__
 
 =pod

@@ -17,6 +17,10 @@ BEGIN {
         or plan skip_all =>
         "DBIx::Class is required for this test";
 
+    eval { require Digest::SHA1 }
+        or plan skip_all =>
+        "Digest::SHA1 is required for this test";
+
     plan tests => 2;
 
     $ENV{TESTAPP_DB_FILE} = "$FindBin::Bin/auth.db";

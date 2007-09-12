@@ -4,27 +4,41 @@ use strict;
 use warnings;
 use base qw/Catalyst::Plugin::Authentication::User Class::Accessor::Fast/;
 use Set::Object ();
+use Carp qw/confess/;
+use Data::Dumper;
 
 use overload '""' => sub { shift->id }, 'bool' => sub { 1 }, fallback => 1;
 
-__PACKAGE__->mk_accessors(qw/id config obj store/);
+__PACKAGE__->mk_accessors(qw/id config store _obj/);
+
 
 sub new {
     my ( $class, $id, $config ) = @_;
-
-    my $query = @{$config->{auth}{user_field}} > 1
-        ? { -or => [ map { { $_ => $id } } @{$config->{auth}{user_field}} ] }
-        : { $config->{auth}{user_field}[0] => $id };
-
-    my $user_obj = $config->{auth}{user_class}->search($query)->first;
-    return unless $user_obj;
-
     bless {
         id     => $id,
-        config => $config,
-        obj    => $user_obj,
+        config => $config
     }, $class;
 }
+
+sub obj {
+	my $self=shift;
+	my $config=$self->config;
+	my $id=$self->id;
+	unless (ref $self->_obj) {
+        my $query = @{$config->{auth}{user_field}} > 1
+            ? { -or => [ map { { $_ => $id } } @{$config->{auth}{user_field}} ] }
+            : { $config->{auth}{user_field}[0] => $id };
+        $self->_obj($config->{auth}{user_class}->search($query)->first);
+    }
+    return $self->_obj;
+}
+
+sub canonical_id {
+	my $self=shift;
+    return undef unless $self->obj();
+	return $self->obj->get_column($self->config->{auth}{user_field}[0]),
+}
+
 
 *user = \&obj;
 *crypted_password = \&password;
