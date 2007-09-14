@@ -21,10 +21,10 @@ sub new {
 }
 
 sub obj {
-	my $self=shift;
-	my $config=$self->config;
-	my $id=$self->id;
-	unless (ref $self->_obj) {
+    my $self=shift;
+    my $config=$self->config;
+    my $id=$self->id;
+    unless (ref $self->_obj) {
         my $query = @{$config->{auth}{user_field}} > 1
             ? { -or => [ map { { $_ => $id } } @{$config->{auth}{user_field}} ] }
             : { $config->{auth}{user_field}[0] => $id };
@@ -34,9 +34,10 @@ sub obj {
 }
 
 sub canonical_id {
-	my $self=shift;
+    my $self=shift;
     return undef unless $self->obj();
-	return $self->obj->get_column($self->config->{auth}{user_field}[0]),
+    my $field = $self->config->{auth}{user_field}[0];
+    return $self->obj->$field,
 }
 
 

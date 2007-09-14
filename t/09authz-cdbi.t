@@ -29,7 +29,7 @@ BEGIN {
         name => 'TestApp',
         authentication => {
             dbic => {
-                user_class         => 'TestApp::Model::CDBI::User',
+                user_class         => 'CDBI::User',
                 user_field         => 'username',
                 password_field     => 'password',
                 password_type      => 'clear',
@@ -37,9 +37,9 @@ BEGIN {
         },
         authorization => {
             dbic => {
-                role_class           => 'TestApp::Model::CDBI::Role',
+                role_class           => 'CDBI::Role',
                 role_field           => 'role',
-                user_role_class      => 'TestApp::Model::CDBI::UserRole',
+                user_role_class      => 'CDBI::UserRole',
                 user_role_user_field => 'user',
                 user_role_role_field => 'role',
             },

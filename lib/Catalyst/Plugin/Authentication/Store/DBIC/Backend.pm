@@ -32,8 +32,7 @@ sub get_user {
     my ( $self, $id, @rest ) = @_;
 
     my $user = $self->{auth}{catalyst_user_class}->new( $id, { %{$self} } );
-	$user->id($user->canonical_id);
-
+    $user->id($user->canonical_id);
 
     if( $self->{auth}{auto_create_user} and !$user->obj ) {
         $self->{auth}{user_class}->auto_create( $id, @rest ) and return $self->get_user( $id );

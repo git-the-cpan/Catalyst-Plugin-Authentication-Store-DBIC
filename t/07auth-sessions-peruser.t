@@ -43,7 +43,7 @@ BEGIN {
         name => 'TestApp',
         authentication => {
             dbic => {
-                user_class     => 'TestApp::Model::DBIC::User',
+                user_class     => 'DBICSchema::User',
                 user_field     => 'username',
                 password_field => 'password',
                 password_type  => 'clear',

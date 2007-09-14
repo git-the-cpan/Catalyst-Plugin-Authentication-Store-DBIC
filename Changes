@@ -1,6 +1,12 @@
 Revision history for Perl extension Catalyst::Plugin::Authentication::Store::DBIC
 
-0.08 2007-09-12 14:46:00
+0.09 2007-09-14 17:14:00
+    - remove old DBIC class data tests
+    - force DBIx::Class and Catalyst::Model::DBIC::Schema pre-reqs
+    - fix broken CDBI code due to changes in 0.08
+    - cleaned up how components are loaded from values specified in the config
+
+    0.08 2007-09-12 14:46:00
     - Made $c->user->id return the first field of user_field, rather than whatever was passed in.
     - Lazy fetching of user_obj
     - Switch to Module::Install

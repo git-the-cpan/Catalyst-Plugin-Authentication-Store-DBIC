@@ -3,9 +3,10 @@ package Catalyst::Plugin::Authentication::Store::DBIC;
 use strict;
 use warnings;
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 use Catalyst::Plugin::Authentication::Store::DBIC::Backend;
+use Catalyst::Utils ();
 
 sub setup {
     my $c = shift;
@@ -33,10 +34,7 @@ sub setup_finished {
 
     my $config = $c->default_auth_store;
     if (my $user_class = $config->{auth}{user_class}) {
-        my $model = $c->model($user_class) || $c->comp($user_class);
-        $config->{auth}{user_class} = ref $model ? $model
-            : $user_class->can('result_source_instance') ? $user_class->result_source_instance->resultset
-            : $user_class;        
+        $config->{auth}{user_class} = _get_instance( $c, $user_class );
 
         if ($config->{auth}{user_class}->isa('Class::DBI') and
             $config->{auth}{catalyst_user_class} eq 'Catalyst::Plugin::Authentication::Store::DBIC::User')
@@ -51,15 +49,57 @@ sub setup_finished {
     else {
         Catalyst::Exception->throw( message => "You must provide a user_class" );
     }
-    
+
     if (my $role_class = $config->{authz}{role_class}) {
-        my $model = $c->model($role_class) || $c->comp($role_class);
-        $config->{authz}{role_class} = ref $model ? $model
-            : $role_class->can('result_source_instance') ? $role_class->result_source_instance->resultset
-            : $role_class;
+        $config->{authz}{role_class} = _get_instance( $c, $role_class );
     }
-    
+
+    if (my $user_role_class = $config->{authz}{user_role_class}) {
+        $config->{authz}{user_role_class} = _get_instance( $c, $user_role_class );
+    }
+
     $c->NEXT::setup_finished(@_);
+}
+
+sub _get_instance {
+    my( $c, $class ) = @_;
+
+    # first see if there's a component already loaded. this means the user
+    # specified the full component name (MyApp::Model::Foo::Bar)
+    my $comp;
+    if( $comp = $c->components->{ $class } ) {
+        return $comp if ref $comp;
+    }
+
+    # second check to see if model() or comp() gives us something. this means
+    # the user specified the part after MyApp::Model only
+    my $model = $c->model($class) || $c->comp($class);
+
+    return $model if ref $model;
+
+    # now we're on to class names only
+
+    # if a component wasn't found, perhaps it's not been loaded yet.
+    if( !$comp ) {
+        eval { Catalyst::Utils::ensure_class_loaded( $class ); };
+    }
+
+    # if the class existed, check to see if it's a dbic class and return a
+    # resultset instance
+    if( $comp || !$@ ){
+        if( $class->can('resultset_instance') ) {
+            return $class->resultset_instance;
+        }
+        return $class;
+    }
+
+    # last case where the model gave us a non-ref which could be an old dbic
+    # class-data style setup
+    if( $model->can('resultset_instance') ) {
+        return $model->resultset_instance;
+    }
+
+    return $model;
 }
 
 sub user_object {
@@ -88,7 +128,7 @@ Catalyst::Plugin::Authentication::Store::DBIC - Authentication and authorization
 
     # Authentication
     __PACKAGE__->config->{authentication}{dbic} = {
-        user_class         => 'MyApp::Model::DB::User',
+        user_class         => 'DB::User',
         user_field         => 'username',
         password_field     => 'password',
         password_type      => 'hashed',
@@ -99,11 +139,11 @@ Catalyst::Plugin::Authentication::Store::DBIC - Authentication and authorization
     # For more detailed instructions on setting up role-based auth, please
     # see the section below titled L<Roles>.
     __PACKAGE__->config->{authorization}{dbic} = {
-        role_class           => 'MyApp::Model::DB::Role',
+        role_class           => 'DB::Role',
         role_field           => 'role',
         role_rel             => 'map_user_role',                # DBIx::Class only
         user_role_user_field => 'user',
-        user_role_class      => 'MyApp::Model::DB::UserRole',   # Class::DBI only
+        user_role_class      => 'DB::UserRole',   # Class::DBI only
         user_role_role_field => 'role',                         # Class::DBI only
     };
 
@@ -440,9 +480,9 @@ For the above Class::DBI model classes, the configuration would look like
 this:
 
     __PACKAGE__->config->{authorization}{dbic} = {
-        role_class           => 'MyApp::Model::DB::Role',
+        role_class           => 'DB::Role',
         role_field           => 'role',
-        user_role_class      => 'MyApp::Model::DB::UserRole',
+        user_role_class      => 'DB::UserRole',
         user_role_user_field => 'user',
         user_role_role_field => 'role',
     };

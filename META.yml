@@ -13,9 +13,10 @@ no_index:
     - inc
     - t
 requires: 
+  Catalyst::Model::DBIC::Schema: 0
   Catalyst::Plugin::Authentication: 0.06
   Catalyst::Runtime: 0
   Class::Accessor::Fast: 0
-  DBI: 0
+  DBIx::Class: 0
   Set::Object: 1.14
-version: 0.08
+version: 0.09

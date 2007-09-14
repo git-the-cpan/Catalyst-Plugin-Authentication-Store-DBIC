@@ -7,7 +7,8 @@ requires 'Catalyst::Runtime';
 requires 'Catalyst::Plugin::Authentication' => '0.06';
 requires 'Set::Object' => '1.14';
 requires 'Class::Accessor::Fast';
-requires 'DBI';
+requires 'DBIx::Class';
+requires 'Catalyst::Model::DBIC::Schema';
 
 feature 'Roles support',
     -default                                 => 1,
@@ -16,10 +17,6 @@ feature 'Roles support',
 feature 'Cookie support',
     -default                                   => 1,
     'Catalyst::Plugin::Session::State::Cookie' => '0.02';
-
-feature 'DBIx::Class support',
-    -default      => 1,
-    'DBIx::Class' => 0;
 
 feature 'Class::DBI support',
     -default     => 0,

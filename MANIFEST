@@ -27,7 +27,6 @@ t/06auth-hashed.t
 t/06auth-salted-hash.t
 t/07auth-sessions-peruser.t
 t/07auth-sessions.t
-t/08authz-dbic.t
 t/09authz-cdbi.t
 t/10authz-dbic-schema.t
 t/11autocreate.t
@@ -37,12 +36,9 @@ t/lib/TestApp/Model/CDBI.pm
 t/lib/TestApp/Model/CDBI/Role.pm
 t/lib/TestApp/Model/CDBI/User.pm
 t/lib/TestApp/Model/CDBI/UserRole.pm
-t/lib/TestApp/Model/DBIC.pm
-t/lib/TestApp/Model/DBIC/Role.pm
-t/lib/TestApp/Model/DBIC/User.pm
-t/lib/TestApp/Model/DBIC/UserRole.pm
 t/lib/TestApp/Model/DBICSchema.pm
 t/lib/TestDB.pm
 t/lib/TestDB/Role.pm
+t/lib/TestDB/RS/User.pm
 t/lib/TestDB/User.pm
 t/lib/TestDB/UserRole.pm
