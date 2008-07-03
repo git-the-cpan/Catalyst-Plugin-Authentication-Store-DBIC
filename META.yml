@@ -1,8 +1,9 @@
 --- 
-abstract: Authentication and authorization against a DBIx::Class or Class::DBI model.
-author: David Kamholz, <dkamholz@cpan.org>
+abstract: "**DEPRECATED** Authentication and authorization against a DBIx::Class or Class::DBI model."
+author: 
+  - David Kamholz, <dkamholz@cpan.org>
 distribution_type: module
-generated_by: Module::Install version 0.67
+generated_by: Module::Install version 0.680
 license: perl
 meta-spec: 
   url: http://module-build.sourceforge.net/META-spec-v1.3.html
@@ -19,4 +20,4 @@ requires:
   Class::Accessor::Fast: 0
   DBIx::Class: 0
   Set::Object: 1.14
-version: 0.09
+version: 0.10

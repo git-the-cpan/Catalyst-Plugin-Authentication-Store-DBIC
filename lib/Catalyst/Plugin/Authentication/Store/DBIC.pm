@@ -3,13 +3,16 @@ package Catalyst::Plugin::Authentication::Store::DBIC;
 use strict;
 use warnings;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 use Catalyst::Plugin::Authentication::Store::DBIC::Backend;
 use Catalyst::Utils ();
 
 sub setup {
     my $c = shift;
+
+    $c->log->warn('Authentication::Store::DBIC is deprecated!')
+      unless $c->config->{authentication}{dbic}{no_deprecation_warning};
 
     # default values
     $c->config->{authentication}{dbic}{user_field}     ||= 'user';
@@ -115,7 +118,13 @@ __END__
 
 =head1 NAME
 
-Catalyst::Plugin::Authentication::Store::DBIC - Authentication and authorization against a DBIx::Class or Class::DBI model.
+Catalyst::Plugin::Authentication::Store::DBIC - **DEPRECATED** Authentication and authorization against a DBIx::Class or Class::DBI model.
+
+=head1 DEPRECATED
+
+This store has been deprecated in favour of 
+L<Catalyst::Plugin::Authentication::Store::DBIx::Class>. Please do not use 
+this plugin for new development.
 
 =head1 SYNOPSIS
 
