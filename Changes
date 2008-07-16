@@ -1,5 +1,9 @@
 Revision history for Perl extension Catalyst::Plugin::Authentication::Store::DBIC
 
+0.11 2008-07-16
+    - Make deprecation notice point to the right damn module
+      (Catalyst::Authentication::Store::DBIx::Class)
+
 0.10 2008-07-03
     - Add deprecation notice in favour of 
       Catalyst::Plugin::Authentication::Store::DBIx::Class

@@ -1,4 +1,5 @@
-package Catalyst::Plugin::Authentication::Store::DBIC::User::CDBI;
+package # (mst) I don't have perms to this and it's a final deprecation release
+  Catalyst::Plugin::Authentication::Store::DBIC::User::CDBI;
 use strict;
 use base qw/Catalyst::Plugin::Authentication::Store::DBIC::User/;
 

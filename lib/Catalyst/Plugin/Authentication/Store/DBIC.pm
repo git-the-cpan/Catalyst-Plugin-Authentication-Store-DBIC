@@ -3,7 +3,7 @@ package Catalyst::Plugin::Authentication::Store::DBIC;
 use strict;
 use warnings;
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 use Catalyst::Plugin::Authentication::Store::DBIC::Backend;
 use Catalyst::Utils ();
@@ -123,7 +123,7 @@ Catalyst::Plugin::Authentication::Store::DBIC - **DEPRECATED** Authentication an
 =head1 DEPRECATED
 
 This store has been deprecated in favour of 
-L<Catalyst::Plugin::Authentication::Store::DBIx::Class>. Please do not use 
+L<Catalyst::Authentication::Store::DBIx::Class>. Please do not use 
 this plugin for new development.
 
 =head1 SYNOPSIS
